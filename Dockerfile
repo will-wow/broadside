@@ -1,5 +1,5 @@
 FROM node:8.11.3-alpine
-WORKDIR /broadside
+WORKDIR /app-prototype
 COPY package.json yarn.lock ./
 RUN npx yarn@1.9.4 install
 COPY . .

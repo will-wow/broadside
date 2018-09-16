@@ -1,0 +1,7 @@
+{
+  "rules": {
+    "member-access": [true, "no-public"],
+    "ordered-imports": false
+  },
+  "extends": ["tslint-react", "tslint:recommended", "tslint-config-prettier"]
+}

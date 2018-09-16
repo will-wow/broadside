@@ -1,8 +1,11 @@
 {
-  "name": "broadside",
+  "name": "app-prototype",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/jest": "^23.3.2",
+    "@types/react": "^16.4.14",
+    "@types/react-dom": "^16.0.7",
     "babel-eslint": "^7.2.3",
     "classnames": "^2.2.6",
     "eslint": "^4.19.1",
@@ -22,30 +25,37 @@
     "prettier": "^1.13.7",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4",
+    "react-scripts-ts": "^2.17.0",
     "serve": "^9.4.0",
     "stylelint": "^9.4.0",
     "stylelint-config-recommended-scss": "^3.2.0",
     "stylelint-config-standard": "^18.2.0",
     "stylelint-declaration-use-variable": "^1.6.1",
-    "stylelint-scss": "^3.2.0"
+    "stylelint-scss": "^3.2.0",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "tslint-react": "^3.6.0",
+    "typescript": "^3.0.3"
   },
   "scripts": {
-    "start": "npm-run-all -p start:css start:js",
+    "start": "npm-run-all -p start:css start:ts",
     "start:css": "npm-run-all build:css build:css:watch",
-    "start:js": "react-scripts start",
-    "build": "npm-run-all build:css build:js",
+    "start:ts": "react-scripts-ts start",
+    "build": "npm-run-all build:css build:ts",
     "build:css": "node-sass-chokidar src/ -o src/",
     "build:css:watch": "node-sass-chokidar src/ -o src/ --watch --recursive",
-    "build:js": "react-scripts build",
+    "build:ts": "react-scripts-ts build",
     "lint": "npm-run-all -c lint:*",
     "lint:eslint": "eslint 'src/**/*.{js,jsx}'",
+    "lint:prettier": "prettier --write **/*.{js,jsx,ts,tsx,css,scss,json,md}",
     "lint:stylelint": "stylelint src/**/*.scss",
+    "lint:tslint": "tslint 'src/**/*.{ts,tsx}'",
     "pretest": "npm-run-all build:css",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts-ts test --env=jsdom",
     "pretest:coverage": "npm-run-all build:css",
-    "test:coverage": "react-scripts test --env=jsdom --coverage",
-    "eject": "react-scripts eject",
+    "test:coverage": "react-scripts-ts test --env=jsdom --coverage",
+    "eject": "react-scripts-ts eject",
     "precommit": "lint-staged",
     "heroku-postbuild": "npm-run-all build"
   },
@@ -59,7 +69,7 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx}",
+      "src/**/*.{ts,tsx}",
       "!src/registerServiceWorker.js"
     ]
   }
