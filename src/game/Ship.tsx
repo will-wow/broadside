@@ -7,14 +7,17 @@ interface ShipProps {
   shipPosition: Position.t;
 }
 
-const Ship = styled<ShipProps, "div">("div")`
+const Ship = styled("div").attrs<ShipProps>({
+  style: ({ shipPosition }: ShipProps) => ({
+    left: px(shipPosition.x),
+    top: px(shipPosition.y),
+    transform: rotate(shipPosition.direction)
+  })
+})`
   width: 10px;
   height: 30px;
   background: brown;
   position: absolute;
-  top: ${({ shipPosition }) => px(shipPosition.y)};
-  left: ${({ shipPosition }) => px(shipPosition.x)};
-  transform: ${({ shipPosition }) => rotate(shipPosition.direction)};
 `;
 
 const postfix = (post: string) => (value: any): string => `${value}${post}`;

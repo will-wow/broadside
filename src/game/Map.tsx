@@ -1,15 +1,17 @@
 import * as React from "react";
+import * as R from "ramda";
 import styled from "../styled-components";
 import Ship from "./Ship";
-import * as Utils from "../utils";
 
 import * as Position from "./position";
+import * as KeysDown from "./keys-down";
 
 interface MapState {
   shipPosition: Position.t;
+  keysDown: KeysDown.t;
 }
 
-const keysToChanges = {
+const keysToChanges: Position.ChangeDictionary = {
   ArrowLeft: { attribute: "direction", direction: -1 },
   ArrowRight: { attribute: "direction", direction: 1 },
   a: { attribute: "x", direction: -1 },
@@ -19,37 +21,60 @@ const keysToChanges = {
 };
 
 class Map extends React.Component<{}, MapState> {
-  state = {
+  state: MapState = {
+    keysDown: {},
     shipPosition: {
       direction: 90,
       x: 20,
       y: 20
     }
   };
+  interval: NodeJS.Timer;
 
-  handleKeypress = ({ key }: KeyboardEvent): void => {
-    const changes = keysToChanges[key];
-
-    if (!changes) {
-      return;
-    }
-
+  updatePosition = () => {
     let { shipPosition } = this.state;
-    const { attribute, direction } = changes;
+    const { keysDown } = this.state;
 
-    shipPosition = Position.change(attribute)(direction)(shipPosition);
+    shipPosition = R.pipe(
+      KeysDown.pressedKeys,
+      R.reduce(
+        (position, key) => Position.changeFromKey(keysToChanges, key, position),
+        shipPosition
+      )
+    )(keysDown);
 
     this.setState({ shipPosition });
   };
 
-  componentDidMount = () => {
-    Utils.log("key")("press");
+  handleKeyDown = (event: KeyboardEvent): void => {
+    let { keysDown } = this.state;
 
-    document.addEventListener("keydown", this.handleKeypress, false);
+    keysDown = KeysDown.recordKeyDown(keysDown, event);
+
+    this.setState({ keysDown });
   };
 
-  componentWillUnmount = () =>
-    document.removeEventListener("keydown", this.handleKeypress, false);
+  handleKeyUp = (event: KeyboardEvent): void => {
+    let { keysDown } = this.state;
+
+    keysDown = KeysDown.recordKeyUp(keysDown, event);
+
+    this.setState({ keysDown });
+  };
+
+  componentDidMount = () => {
+    document.addEventListener("keydown", this.handleKeyDown, false);
+    document.addEventListener("keyup", this.handleKeyUp, false);
+
+    this.interval = setInterval(this.updatePosition, 1 / 24);
+  };
+
+  componentWillUnmount = () => {
+    document.removeEventListener("keydown", this.handleKeyDown, false);
+    document.removeEventListener("keyup", this.handleKeyUp, false);
+
+    clearInterval(this.interval);
+  };
 
   render() {
     const { shipPosition } = this.state;
