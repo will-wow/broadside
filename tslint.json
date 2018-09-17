@@ -1,5 +1,6 @@
 {
   "rules": {
+    "class-name": false,
     "interface-name": [true, "never-prefix"],
     "member-access": [true, "no-public"],
     "ordered-imports": false
