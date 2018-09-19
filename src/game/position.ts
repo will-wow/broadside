@@ -16,9 +16,9 @@ export interface ChangeDictionary {
 }
 
 const attributeDeltas = {
-  direction: 1,
-  x: 1,
-  y: 1
+  direction: 0.25,
+  x: 0.25,
+  y: 0.25
 };
 
 export const change = ({ attribute, direction }: Change) => (
@@ -28,8 +28,12 @@ export const change = ({ attribute, direction }: Change) => (
   return Utils.update(attribute)(R.add(delta))(position);
 };
 
-export const changeFromKey = (possibleChanges: ChangeDictionary,
-  key: string, position: t) => {
+// TODO: This should be heading & velocity
+export const changeFromKey = (
+  possibleChanges: ChangeDictionary,
+  key: string,
+  position: t
+) => {
   const changeData = possibleChanges[key];
 
   if (!changeData) {

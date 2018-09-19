@@ -11,9 +11,8 @@ interface MapState {
   keysDown: KeysDown.t;
 }
 
+// TODO: This should be heading & velocity
 const keysToChanges: Position.ChangeDictionary = {
-  ArrowLeft: { attribute: "direction", direction: -1 },
-  ArrowRight: { attribute: "direction", direction: 1 },
   a: { attribute: "x", direction: -1 },
   d: { attribute: "x", direction: 1 },
   s: { attribute: "y", direction: 1 },
