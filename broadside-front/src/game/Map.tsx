@@ -5,13 +5,16 @@ import Ship from "./Ship";
 
 import * as Position from "./position";
 import * as KeysDown from "./keys-down";
+import { Channel, Socket } from "phoenix";
+import axios from "axios";
 
 interface MapState {
+  userId?: string;
+  token?: string;
   shipPosition: Position.t;
   keysDown: KeysDown.t;
 }
 
-// TODO: This should be heading & velocity
 const keysToChanges: Position.ChangeDictionary = {
   a: { attribute: "heading", direction: -1 },
   d: { attribute: "heading", direction: 1 },
@@ -30,6 +33,7 @@ class Map extends React.Component<{}, MapState> {
     }
   };
   interval: NodeJS.Timer;
+  channel: Channel;
 
   updatePosition = () => {
     let { shipPosition } = this.state;
@@ -64,6 +68,7 @@ class Map extends React.Component<{}, MapState> {
   };
 
   componentDidMount = () => {
+    this.connect();
     document.addEventListener("keydown", this.handleKeyDown, false);
     document.addEventListener("keyup", this.handleKeyUp, false);
 
@@ -85,6 +90,26 @@ class Map extends React.Component<{}, MapState> {
       </MapBackground>
     );
   }
+
+  private connect = async () => {
+    const { data } = await axios.post("http://localhost:4000/api/users");
+
+    const { token, id: userId } = data;
+
+    const socket = new Socket("ws://localhost:4000/socket", {
+      params: { token }
+    });
+    socket.connect();
+
+    this.channel = socket.channel(`store:${userId}`, {});
+    this.setState({ userId, token });
+
+
+    this.channel.join().receive("ok", response => {
+      // tslint:disable:no-console
+      console.log("Joined successfully", response);
+    });
+  };
 }
 
 const MapBackground = styled.div`
