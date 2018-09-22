@@ -48,7 +48,7 @@ export const change = ({ attribute, direction }: Change) => (
 export const turn = (position: t): t => {
   let { x, y } = position;
   const { heading, velocity } = position;
-  const { radians } = Radian.fromDegrees(heading);
+  const radians = Radian.fromDegrees(heading);
 
   x = x + (velocity / 24) * Math.cos(radians);
   y = y + (velocity / 24) * Math.sin(radians);
