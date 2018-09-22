@@ -13,17 +13,18 @@ interface MapState {
 
 // TODO: This should be heading & velocity
 const keysToChanges: Position.ChangeDictionary = {
-  a: { attribute: "x", direction: -1 },
-  d: { attribute: "x", direction: 1 },
-  s: { attribute: "y", direction: 1 },
-  w: { attribute: "y", direction: -1 }
+  a: { attribute: "heading", direction: -1 },
+  d: { attribute: "heading", direction: 1 },
+  s: { attribute: "velocity", direction: -1 },
+  w: { attribute: "velocity", direction: 1 }
 };
 
 class Map extends React.Component<{}, MapState> {
   state: MapState = {
     keysDown: {},
     shipPosition: {
-      direction: 90,
+      heading: 90,
+      velocity: 0,
       x: 20,
       y: 20
     }
@@ -39,7 +40,8 @@ class Map extends React.Component<{}, MapState> {
       R.reduce(
         (position, key) => Position.changeFromKey(keysToChanges, key, position),
         shipPosition
-      )
+      ),
+      Position.turn
     )(keysDown);
 
     this.setState({ shipPosition });

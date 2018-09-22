@@ -38,7 +38,6 @@
     "stylelint-config-standard": "^18.2.0",
     "stylelint-declaration-use-variable": "^1.6.1",
     "stylelint-scss": "^3.2.0",
-    "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
     "tslint-react": "^3.6.0",

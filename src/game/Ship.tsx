@@ -8,21 +8,20 @@ interface ShipProps {
 }
 
 const Ship = styled("div").attrs<ShipProps>({
-  style: ({ shipPosition }: ShipProps) => ({
-    left: px(shipPosition.x),
-    top: px(shipPosition.y),
-    transform: rotate(shipPosition.direction)
+  style: ({ shipPosition: { x, y, heading } }: ShipProps) => ({
+    transform: `${translate(x, y)} ${rotate(heading)}`
   })
 })`
   width: 10px;
   height: 30px;
   background: brown;
-  position: absolute;
 `;
 
 const postfix = (post: string) => (value: any): string => `${value}${post}`;
 
 const px = postfix("px");
-const rotate = (degrees: number): string => `rotate(${degrees}deg)`;
+const translate = (x: number, y: number): string =>
+  `translate(${px(x)}, ${px(y)})`;
+const rotate = (degrees: number): string => `rotate(${degrees + 90}deg)`;
 
 export default Ship;
