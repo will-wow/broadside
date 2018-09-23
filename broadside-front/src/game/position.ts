@@ -39,9 +39,6 @@ export const change = ({ attribute, direction }: Change) => (
 
   const newPosition = Utils.update<t>(attribute)(R.add(delta))(position);
 
-  // tslint:disable:no-console
-  console.log(newPosition);
-
   return constrainPosition(newPosition);
 };
 
@@ -57,7 +54,6 @@ export const turn = (position: t): t => {
   return constrainPosition(newPosition);
 };
 
-// TODO: This should be heading & velocity
 export const changeFromKey = (
   possibleChanges: ChangeDictionary,
   key: string,

@@ -104,7 +104,6 @@ class Map extends React.Component<{}, MapState> {
     this.channel = socket.channel(`store:${userId}`, {});
     this.setState({ userId, token });
 
-
     this.channel.join().receive("ok", response => {
       // tslint:disable:no-console
       console.log("Joined successfully", response);

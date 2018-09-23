@@ -1,15 +1,33 @@
 import * as React from "react";
-import "./App.css";
 import Map from "./game/Map";
+
+import styled from "./styled-components";
+import { injectGlobal } from "./styled-components";
 
 class App extends React.Component {
   render() {
     return (
-      <div className="App">
+      <AppStyled>
         <Map />
-      </div>
+      </AppStyled>
     );
   }
 }
+
+const AppStyled = styled.div`
+  height: 100%;
+  width: 100%;
+`;
+
+// tslint:disable:no-unused-expression
+injectGlobal`
+  body, html {
+    height: 100%;
+    width: 100%;
+  }
+  body {
+    margin: 0;
+  }
+`;
 
 export default App;
