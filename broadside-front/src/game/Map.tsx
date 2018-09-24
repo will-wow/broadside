@@ -10,6 +10,8 @@ import axios from "axios";
 interface MapState {
   userId?: string;
   token?: string;
+  fps?: number;
+  maxSpeed?: number;
   shipPosition: Position.t;
   keysDown: KeysDown.t;
 }
@@ -27,15 +29,11 @@ class Map extends React.Component<{}, MapState> {
   channel: Channel;
 
   handleKeyDown = ({ key }: KeyboardEvent): void => {
-    this.channel
-      .push("dispatch", { type: "key_down", data: key })
-      .receive("ok", state => this.setState(state));
+    this.channel.push("dispatch", { type: "key_down", data: key });
   };
 
   handleKeyUp = ({ key }: KeyboardEvent): void => {
-    this.channel
-      .push("dispatch", { type: "key_up", data: key })
-      .receive("ok", state => this.setState(state));
+    this.channel.push("dispatch", { type: "key_up", data: key });
   };
 
   componentDidMount = () => {
@@ -51,10 +49,10 @@ class Map extends React.Component<{}, MapState> {
   };
 
   render() {
-    const { shipPosition } = this.state;
+    const { fps, maxSpeed, shipPosition } = this.state;
     return (
       <MapBackground>
-        <Ship shipPosition={shipPosition} />
+        <Ship fps={fps} maxSpeed={maxSpeed} shipPosition={shipPosition} />
       </MapBackground>
     );
   }

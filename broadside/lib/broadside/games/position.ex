@@ -2,6 +2,7 @@ defmodule Broadside.Position do
   alias __MODULE__
   alias __MODULE__.Change
   alias Broadside.Radian
+  alias Broadside.Games.Constants
 
   @type t :: %Position{
           x: number,
@@ -14,15 +15,18 @@ defmodule Broadside.Position do
 
   defstruct x: 0.0, y: 0.0, velocity: 0.0, heading: 0.0
 
+  @fps Constants.get(:fps)
+  @max_speed Constants.get(:max_speed)
+
   @move_deltas %{
-    heading: 0.25,
-    velocity: 3
+    heading: 45,
+    velocity: 10
   }
 
   def constrain_position(%Position{heading: heading, velocity: velocity, x: x, y: y}) do
     %Position{
-      heading: Utils.mod(heading, 360),
-      velocity: Utils.clamp(velocity, -9, 9),
+      heading: heading,
+      velocity: Utils.clamp(velocity, -@max_speed, @max_speed),
       x: Utils.clamp(x, 0, 1000),
       y: Utils.clamp(y, 0, 1000)
     }
@@ -30,19 +34,19 @@ defmodule Broadside.Position do
 
   @spec change(t(), Change.t()) :: t()
   def change(position = %Position{}, %Change{attribute: attribute, direction: direction}) do
-    delta = @move_deltas[attribute] * direction
+    delta = @move_deltas[attribute] / @fps * direction
 
     position
     |> Map.update!(attribute, Utils.add(delta))
     |> constrain_position()
   end
 
-  @spec turn(t) :: t
-  def turn(position = %Position{heading: heading, velocity: velocity, x: x, y: y}) do
+  @spec frame(t) :: t
+  def frame(position = %Position{heading: heading, velocity: velocity, x: x, y: y}) do
     %Radian{radians: radians} = Radian.from_degrees(heading)
 
-    x = x + velocity / 24 * :math.cos(radians)
-    y = y + velocity / 24 * :math.sin(radians)
+    x = x + velocity / @fps * :math.cos(radians)
+    y = y + velocity / @fps * :math.sin(radians)
 
     position
     |> struct(x: x, y: y)
@@ -51,7 +55,6 @@ defmodule Broadside.Position do
 
   @spec change_from_key(t, Change.change_type(), possible_changes) :: t
   def change_from_key(position, key, possible_changes) do
-    IO.inspect({"Change from ey", key})
     change_delta = possible_changes[key]
 
     case change_delta do

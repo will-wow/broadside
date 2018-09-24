@@ -10,9 +10,9 @@ defmodule Broadside.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(BroadsideWeb.Endpoint, []),
-      BroadsideWeb.Presence,
-      {Broadside.Games.FrameInterval,
-       on_tick: &BroadsideWeb.StoreChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
+      BroadsideWeb.Presence
+      # {Broadside.Games.FrameInterval,
+      #  on_tick: &BroadsideWeb.StoreChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -23,6 +23,7 @@ defmodule Broadside.Application do
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
+  @spec config_change(any(), any(), any()) :: :ok
   def config_change(changed, _new, removed) do
     BroadsideWeb.Endpoint.config_change(changed, removed)
     :ok

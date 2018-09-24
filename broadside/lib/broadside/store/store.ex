@@ -4,13 +4,19 @@ defmodule Broadside.Store do
   alias Broadside.Position
   alias Broadside.Position.Change
   alias Broadside.KeysDown
+  alias Broadside.Games.Constants
+
+  @fps Constants.get(:fps)
+  @max_speed Constants.get(:max_speed)
 
   @type t :: %Store{
+          max_speed: number,
+          fps: number,
           keys_down: KeysDown.t(),
           ship_position: Position.t()
         }
 
-  defstruct [:keys_down, :ship_position]
+  defstruct [:fps, :max_speed, :keys_down, :ship_position]
 
   @keys_to_changes %{
     "a" => %Change{attribute: :heading, direction: -1},
@@ -22,14 +28,8 @@ defmodule Broadside.Store do
   @spec reducer() :: t()
   def reducer() do
     %Store{
-      keys_down: %KeysDown{},
-      ship_position: %Position{}
-    }
-  end
-
-  @spec reducer(t, Action.t()) :: t()
-  def reducer(_state, %Action{type: :start_game}) do
-    %Store{
+      fps: @fps,
+      max_speed: @max_speed,
       keys_down: %KeysDown{},
       ship_position: %Position{}
     }
@@ -56,7 +56,7 @@ defmodule Broadside.Store do
       |> Enum.reduce(position, fn key, position ->
         Position.change_from_key(position, key, @keys_to_changes)
       end)
-      |> Position.turn()
+      |> Position.frame()
 
     state
     |> struct!(ship_position: position)

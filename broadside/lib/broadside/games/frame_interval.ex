@@ -10,15 +10,13 @@ defmodule Broadside.Games.FrameInterval do
           interval: integer
         }
 
-  @interval Kernel.round(1000 / 24)
-
   alias __MODULE__
 
   @spec start_link(keyword) :: GenServer.on_start()
   def start_link(opts) do
     name = opts[:name]
     on_tick = opts[:on_tick]
-    interval = opts[:interval] || @interval
+    interval = opts[:interval]
 
     GenServer.start_link(FrameInterval, {on_tick, interval}, name: name)
   end

@@ -3,6 +3,8 @@ defmodule BroadsideWeb.UserSocket do
 
   @type socket :: Phoenix.Socket.t()
 
+  @one_day 1000 * 60 * 60 * 24
+
   ## Channels
   channel "store:*", BroadsideWeb.StoreChannel
 
@@ -22,7 +24,7 @@ defmodule BroadsideWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "user", token, max_age: 60 * 60 * 24) do
+    case Phoenix.Token.verify(socket, "user", token, max_age: @one_day) do
       {:ok, user_id} ->
         {:ok, assign(socket, :user_id, user_id)}
 
