@@ -14,14 +14,6 @@ defmodule BroadsideWeb.StoreChannel do
 
   intercept ["dispatch"]
 
-  # @reducers CombinedReducer.new([
-
-
-  # ], [
-
-  # ])
-
-
   @spec join(String.t(), map, socket) :: {:ok, socket} | {:error, map}
   def join("store:" <> user_id, _payload, socket) do
     case user_id == socket.assigns.user_id do

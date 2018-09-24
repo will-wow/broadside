@@ -43,36 +43,6 @@ defmodule Broadside.Store.GameReducer do
     }
   end
 
-  @spec reduce(t, Action.t()) :: t
-  def reduce(state, %Action{type: :key_down, data: key}) do
-    keys_down = KeysDown.record_key_down(state.keys_down, key)
-
-    state
-    |> struct!(keys_down: keys_down)
-  end
-
-  def reduce(state, %Action{type: :key_up, data: key}) do
-    keys_down = KeysDown.record_key_up(state.keys_down, key)
-
-    state
-    |> struct!(keys_down: keys_down)
-  end
-
-  def reduce(state = %GameReducer{keys_down: keys_down, ships: [ship]}, %Action{type: :frame}) do
-    position =
-      keys_down
-      |> KeysDown.pressed_keys()
-      |> Enum.reduce(ship.position, fn key, position ->
-        Position.change_from_key(position, key, @keys_to_changes)
-      end)
-      |> Position.frame()
-
-    ship = ship |> struct!(position: position)
-
-    state
-    |> struct!(ships: [ship])
-  end
-
   def reduce(state = %GameReducer{}, _) do
     state
   end
