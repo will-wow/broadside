@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as R from "ramda";
 import styled from "../styled-components";
 import Ship from "./Ship";
 
@@ -15,13 +14,6 @@ interface MapState {
   keysDown: KeysDown.t;
 }
 
-const keysToChanges: Position.ChangeDictionary = {
-  a: { attribute: "heading", direction: -1 },
-  d: { attribute: "heading", direction: 1 },
-  s: { attribute: "velocity", direction: -1 },
-  w: { attribute: "velocity", direction: 1 }
-};
-
 class Map extends React.Component<{}, MapState> {
   state: MapState = {
     keysDown: {},
@@ -32,54 +24,30 @@ class Map extends React.Component<{}, MapState> {
       y: 20
     }
   };
-  interval: NodeJS.Timer;
   channel: Channel;
 
-  updatePosition = () => {
-    let { shipPosition } = this.state;
-    const { keysDown } = this.state;
-
-    shipPosition = R.pipe(
-      KeysDown.pressedKeys,
-      R.reduce(
-        (position, key) => Position.changeFromKey(keysToChanges, key, position),
-        shipPosition
-      ),
-      Position.turn
-    )(keysDown);
-
-    this.setState({ shipPosition });
+  handleKeyDown = ({ key }: KeyboardEvent): void => {
+    this.channel
+      .push("dispatch", { type: "key_down", data: key })
+      .receive("ok", state => this.setState(state));
   };
 
-  handleKeyDown = (event: KeyboardEvent): void => {
-    let { keysDown } = this.state;
-
-    keysDown = KeysDown.recordKeyDown(keysDown, event);
-
-    this.setState({ keysDown });
-  };
-
-  handleKeyUp = (event: KeyboardEvent): void => {
-    let { keysDown } = this.state;
-
-    keysDown = KeysDown.recordKeyUp(keysDown, event);
-
-    this.setState({ keysDown });
+  handleKeyUp = ({ key }: KeyboardEvent): void => {
+    this.channel
+      .push("dispatch", { type: "key_up", data: key })
+      .receive("ok", state => this.setState(state));
   };
 
   componentDidMount = () => {
     this.connect();
+
     document.addEventListener("keydown", this.handleKeyDown, false);
     document.addEventListener("keyup", this.handleKeyUp, false);
-
-    this.interval = setInterval(this.updatePosition, 1 / 24);
   };
 
   componentWillUnmount = () => {
     document.removeEventListener("keydown", this.handleKeyDown, false);
     document.removeEventListener("keyup", this.handleKeyUp, false);
-
-    clearInterval(this.interval);
   };
 
   render() {
@@ -107,6 +75,10 @@ class Map extends React.Component<{}, MapState> {
     this.channel.join().receive("ok", response => {
       // tslint:disable:no-console
       console.log("Joined successfully", response);
+    });
+
+    this.channel.on("store", store => {
+      this.setState(store);
     });
   };
 }

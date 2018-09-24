@@ -10,8 +10,9 @@ defmodule Broadside.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(BroadsideWeb.Endpoint, []),
-      # Start your own worker by calling: Broadside.Worker.start_link(arg1, arg2, arg3)
-      # worker(Broadside.Worker, [arg1, arg2, arg3]),
+      BroadsideWeb.Presence,
+      {Broadside.Games.FrameInterval,
+       on_tick: &BroadsideWeb.StoreChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -3,8 +3,8 @@
     ".credo.exs",
     ".formatter.exs",
     "mix.exs",
-    "apps/*/mix.exs",
-    "apps/*/{config,lib,test}/**/*.{ex,exs}"
+    "mix.exs",
+    "{config,lib,test}/**/*.{ex,exs}"
   ],
   # In Phoenix 1.4+ we won't have to list these; we can just import these from the phoenix dep:
   locals_without_parens:

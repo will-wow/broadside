@@ -16,10 +16,7 @@
       # If you create your own checks, you must specify the source files for
       # them here, so they can be loaded by Credo before running the analysis.
       #
-      requires: [
-        "credo/ensure_decimal_operators.ex",
-        "credo/specs_with_named_args.ex"
-      ],
+      requires: [],
       #
       # If you want to enforce a style guide and need a more traditional linting
       # experience: `strict: true`
@@ -146,13 +143,11 @@
         # Deprecated checks (these will be deleted after a grace period)
         #
         # require typespecs
-        {Credo.Check.Readability.Specs, false},
+        {Credo.Check.Readability.Specs, false}
 
         #
         # Custom checks generated using `mix credo.gen.check`:
         #
-        {Credo.Custom.EnsureDecimalOperators},
-        {Credo.Check.Readability.SpecsWithNamedArgs}
       ]
     }
   ]

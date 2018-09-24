@@ -1,26 +1,45 @@
 defmodule BroadsideWeb.StoreChannel do
   use BroadsideWeb, :channel
 
+  alias Broadside.Store
+  alias Broadside.Store.Action
+  alias Broadside.Store.Transform
+
   @type socket :: Phoenix.Socket.t()
 
   @spec join(String.t(), map, socket) :: {:ok, socket} | {:error, map}
   def join("store:" <> user_id, _payload, socket) do
     case user_id == socket.assigns.user_id do
-      true -> {:ok, socket}
-      false -> {:error, %{reason: "unauthorized"}}
+      true ->
+        socket = assign(socket, :store, Store.reducer())
+        {:ok, socket}
+
+      false ->
+        {:error, %{reason: "unauthorized"}}
     end
   end
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
-  def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
+  def handle_in("dispatch", action = %Action{}, socket) do
+    IO.inspect({"dispatch", action})
+    store = socket.assigns.store
+
+    store =
+      Store.reducer(store, action)
+      |> Store.reducer(%Action{type: :frame})
+
+    socket = assign(socket, :store, store)
+
+    push(socket, "store", Transform.to_json(store))
+
+    {:noreply, socket}
   end
 
-  # It is also common to receive messages from the client and
-  # broadcast to everyone in the current topic (store:lobby).
-  def handle_in("shout", payload, socket) do
-    broadcast(socket, "shout", payload)
-    {:noreply, socket}
+  def handle_in("dispatch", payload, socket) do
+    action = Action.from_params(payload)
+    handle_in("dispatch", action, socket)
+  end
+
+  def broadcast_frame() do
+    :ok = BroadsideWeb.Endpoint.broadcast("store:*", "dispatch", %Action{type: :frame})
   end
 end
