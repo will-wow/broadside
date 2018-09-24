@@ -1,4 +1,4 @@
-defmodule Broadside.Radian do
+defmodule Broadside.Game.Radian do
   alias __MODULE__
 
   @type t :: %Radian{
@@ -9,6 +9,11 @@ defmodule Broadside.Radian do
 
   @one_eighty_over_pi 180 / :math.pi()
   @pi_over_one_eighty :math.pi() / 180
+
+  @spec new(number) :: t
+  def new(n) do
+    %Radian{radians: n}
+  end
 
   @spec to_degrees(t) :: float
   def to_degrees(%Radian{radians: radians}) do

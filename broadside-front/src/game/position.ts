@@ -1,7 +1,3 @@
-import * as R from "ramda";
-import * as Utils from "../utils";
-import * as Radian from "./radian";
-
 export interface t {
   x: number;
   y: number;
@@ -9,61 +5,10 @@ export interface t {
   heading: number;
 }
 
-export type ChangeType = "velocity" | "heading";
+const postfix = (post: string) => (value: any): string => `${value}${post}`;
 
-export interface Change {
-  attribute: ChangeType;
-  direction: -1 | 1;
-}
+export const px = postfix("px");
 
-export interface ChangeDictionary {
-  [key: string]: Change;
-}
-
-const moveDeltas = {
-  heading: 0.25,
-  velocity: 3
-};
-
-const constrainPosition = R.evolve({
-  heading: R.flip(R.modulo)(360),
-  velocity: R.clamp(-9, 9),
-  x: R.clamp(0, 1000),
-  y: R.clamp(0, 1000)
-});
-
-export const change = ({ attribute, direction }: Change) => (
-  position: t
-): t => {
-  const delta = moveDeltas[attribute] * direction;
-
-  const newPosition = Utils.update<t>(attribute)(R.add(delta))(position);
-
-  return constrainPosition(newPosition);
-};
-
-export const turn = (position: t): t => {
-  let { x, y } = position;
-  const { heading, velocity } = position;
-  const radians = Radian.fromDegrees(heading);
-
-  x = x + (velocity / 24) * Math.cos(radians);
-  y = y + (velocity / 24) * Math.sin(radians);
-
-  const newPosition = { ...position, x, y };
-  return constrainPosition(newPosition);
-};
-
-export const changeFromKey = (
-  possibleChanges: ChangeDictionary,
-  key: string,
-  position: t
-) => {
-  const changeData = possibleChanges[key];
-
-  if (!changeData) {
-    return position;
-  }
-
-  return change(changeData)(position);
-};
+export const translate = ({ x, y }: t): string =>
+  `translate(${px(x)}, ${px(y)})`;
+export const rotate = ({ heading }: t): string => `rotate(${heading + 90}deg)`;

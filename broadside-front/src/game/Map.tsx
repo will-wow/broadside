@@ -1,9 +1,10 @@
 import * as React from "react";
 import styled from "../styled-components";
 import Ship from "./Ship";
+import { ShipData } from "./Ship";
+import Bullet from "./Bullet";
+import { BulletData } from "./Bullet";
 
-import * as Position from "./position";
-import * as KeysDown from "./keys-down";
 import { Channel, Socket } from "phoenix";
 import axios from "axios";
 
@@ -11,20 +12,14 @@ interface MapState {
   userId?: string;
   token?: string;
   fps?: number;
-  maxSpeed?: number;
-  shipPosition: Position.t;
-  keysDown: KeysDown.t;
+  bullets: BulletData[];
+  ships: ShipData[];
 }
 
 class Map extends React.Component<{}, MapState> {
   state: MapState = {
-    keysDown: {},
-    shipPosition: {
-      heading: 90,
-      velocity: 0,
-      x: 20,
-      y: 20
-    }
+    bullets: [],
+    ships: []
   };
   channel: Channel;
 
@@ -49,10 +44,11 @@ class Map extends React.Component<{}, MapState> {
   };
 
   render() {
-    const { fps, maxSpeed, shipPosition } = this.state;
+    const { fps, ships, bullets } = this.state;
     return (
       <MapBackground>
-        <Ship fps={fps} maxSpeed={maxSpeed} shipPosition={shipPosition} />
+        {ships.map(ship => <Ship fps={fps} key={ship.id} ship={ship} />)}
+        {bullets.map(bullet => <Bullet key={bullet.id} fps={fps} bullet={bullet} />)}
       </MapBackground>
     );
   }

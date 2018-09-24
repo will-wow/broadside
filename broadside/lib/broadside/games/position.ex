@@ -1,7 +1,7 @@
-defmodule Broadside.Position do
+defmodule Broadside.Game.Position do
   alias __MODULE__
   alias __MODULE__.Change
-  alias Broadside.Radian
+  alias Broadside.Game.Radian
   alias Broadside.Games.Constants
 
   @type t :: %Position{

@@ -1,4 +1,4 @@
-defmodule Broadside.Position.Change do
+defmodule Broadside.Game.Position.Change do
   alias __MODULE__
 
   @type change_type :: :velocity | :heading

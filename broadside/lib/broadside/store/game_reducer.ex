@@ -1,22 +1,27 @@
-defmodule Broadside.Store do
+defmodule Broadside.Store.GameReducer do
   alias __MODULE__
-  alias Broadside.Store.Action
-  alias Broadside.Position
-  alias Broadside.Position.Change
-  alias Broadside.KeysDown
+  alias Broadside.Game.Position
+  alias Broadside.Game.Position.Change
+  alias Broadside.Game.Ship
   alias Broadside.Games.Constants
+  alias Broadside.KeysDown
+  alias Broadside.Store.Action
+  alias Broadside.Store.Reducer
+
+  @behaviour Reducer
 
   @fps Constants.get(:fps)
   @max_speed Constants.get(:max_speed)
 
-  @type t :: %Store{
+  @type t :: %GameReducer{
           max_speed: number,
           fps: number,
           keys_down: KeysDown.t(),
-          ship_position: Position.t()
+          ships: [Ship.t()],
+          bullets: []
         }
 
-  defstruct [:fps, :max_speed, :keys_down, :ship_position]
+  defstruct [:fps, :max_speed, :keys_down, :ships, :bullets]
 
   @keys_to_changes %{
     "a" => %Change{attribute: :heading, direction: -1},
@@ -25,44 +30,50 @@ defmodule Broadside.Store do
     "w" => %Change{attribute: :velocity, direction: 1}
   }
 
-  @spec reducer() :: t()
-  def reducer() do
-    %Store{
+  @spec reduce() :: t()
+  def reduce() do
+    %GameReducer{
       fps: @fps,
       max_speed: @max_speed,
       keys_down: %KeysDown{},
-      ship_position: %Position{}
+      ships: [
+        Ship.new()
+      ],
+      bullets: []
     }
   end
 
-  def reducer(state, %Action{type: :key_down, data: key}) do
+  @spec reduce(t, Action.t()) :: t
+  def reduce(state, %Action{type: :key_down, data: key}) do
     keys_down = KeysDown.record_key_down(state.keys_down, key)
 
     state
     |> struct!(keys_down: keys_down)
   end
 
-  def reducer(state, %Action{type: :key_up, data: key}) do
+  def reduce(state, %Action{type: :key_up, data: key}) do
     keys_down = KeysDown.record_key_up(state.keys_down, key)
 
     state
     |> struct!(keys_down: keys_down)
   end
 
-  def reducer(state = %Store{keys_down: keys_down, ship_position: position}, %Action{type: :frame}) do
+  def reduce(state = %GameReducer{keys_down: keys_down, ships: [ship]}, %Action{type: :frame}) do
     position =
       keys_down
       |> KeysDown.pressed_keys()
-      |> Enum.reduce(position, fn key, position ->
+      |> Enum.reduce(ship.position, fn key, position ->
         Position.change_from_key(position, key, @keys_to_changes)
       end)
       |> Position.frame()
 
+    ship = ship |> struct!(position: position)
+
     state
-    |> struct!(ship_position: position)
+    |> struct!(ships: [ship])
   end
 
-  def reducer(state = %Store{}, _) do
+  def reduce(state = %GameReducer{}, _) do
     state
   end
 end

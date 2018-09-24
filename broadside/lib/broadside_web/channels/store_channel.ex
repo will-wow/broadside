@@ -1,17 +1,26 @@
 defmodule BroadsideWeb.StoreChannel do
   use BroadsideWeb, :channel
 
-  alias Broadside.Store
+  alias Broadside.Store.GameReducer
   alias Broadside.Store.Action
   alias Broadside.Store.Transform
   alias Broadside.Games.FrameInterval
   alias Broadside.Games.Constants
+  # alias Broadside.Games.CombineReducer
 
   @type socket :: Phoenix.Socket.t()
 
   @frame_length Constants.get(:ms_per_frame)
 
   intercept ["dispatch"]
+
+  # @reducers CombinedReducer.new([
+
+
+  # ], [
+
+  # ])
+
 
   @spec join(String.t(), map, socket) :: {:ok, socket} | {:error, map}
   def join("store:" <> user_id, _payload, socket) do
@@ -25,7 +34,7 @@ defmodule BroadsideWeb.StoreChannel do
             end
           )
 
-        socket = assign(socket, :store, Store.reducer())
+        socket = assign(socket, :store, GameReducer.reduce())
         {:ok, socket}
 
       false ->
@@ -36,7 +45,7 @@ defmodule BroadsideWeb.StoreChannel do
   def handle_in("dispatch", payload, socket) do
     action = Action.from_params(payload)
     store = socket.assigns.store
-    store = Store.reducer(store, action)
+    store = GameReducer.reduce(store, action)
     socket = assign(socket, :store, store)
 
     push(socket, "store", Transform.to_json(store))
@@ -46,7 +55,7 @@ defmodule BroadsideWeb.StoreChannel do
 
   def handle_out("dispatch", action = %Action{}, socket) do
     store = socket.assigns.store
-    store = Store.reducer(store, action)
+    store = GameReducer.reduce(store, action)
     socket = assign(socket, :store, store)
 
     push(socket, "store", Transform.to_json(store))

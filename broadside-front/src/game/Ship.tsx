@@ -8,22 +8,23 @@ import oneSailSprite from "../img/one-sail.png";
 import twoSailSprite from "../img/two-sail.png";
 import threeSailSprite from "../img/three-sail.png";
 
-interface ShipProps {
+export interface ShipData {
+  id: string;
+  maxSpeed: number;
+  position: Position.t;
+}
+
+export interface ShipProps {
   fps?: number;
-  maxSpeed?: number;
-  shipPosition: Position.t;
+  ship: ShipData;
 }
 
 const Ship = styled("div").attrs<ShipProps>({
-  style: ({
-    fps,
-    maxSpeed,
-    shipPosition: { x, y, heading, velocity }
-  }: ShipProps) => {
-    const sprite = sailSprite(maxSpeed, velocity);
+  style: ({ fps, ship: { maxSpeed, position } }: ShipProps) => {
+    const sprite = sailSprite(maxSpeed, position.velocity);
     return {
       backgroundImage: `url(${sprite})`,
-      transform: `${translate(x, y)} ${rotate(heading)}`,
+      transform: `${Position.translate(position)} ${Position.rotate(position)}`,
       transition: fps ? `${1 / fps}s linear` : "none"
     };
   }
@@ -34,13 +35,6 @@ const Ship = styled("div").attrs<ShipProps>({
   background-repeat: no-repeat;
   background-position: center;
 `;
-
-const postfix = (post: string) => (value: any): string => `${value}${post}`;
-
-const px = postfix("px");
-const translate = (x: number, y: number): string =>
-  `translate(${px(x)}, ${px(y)})`;
-const rotate = (degrees: number): string => `rotate(${degrees + 90}deg)`;
 
 const sailSprite = (maxSpeed: number | undefined, speed: number) => {
   const velocity = Math.abs(speed);

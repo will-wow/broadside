@@ -1,20 +1,12 @@
 defmodule BroadsideWeb.UserController do
   use BroadsideWeb, :controller
+  alias Broadside.Id
 
   def create(conn, _) do
-    id = random_user_id()
+    id = Id.random()
     token = sign_token(conn, id)
 
     json(conn, %{id: id, token: token})
-  end
-
-  defp random_user_id() do
-    length = 32
-
-    length
-    |> :crypto.strong_rand_bytes()
-    |> Base.url_encode64()
-    |> binary_part(0, length)
   end
 
   @spec sign_token(Plug.Conn.t(), String.t()) :: String.t()
