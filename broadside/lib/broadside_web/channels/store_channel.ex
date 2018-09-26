@@ -27,7 +27,7 @@ defmodule BroadsideWeb.StoreChannel do
             end
           )
 
-        socket = assign(socket, :store, GameReducer.reduce())
+        socket = assign(socket, :store, %GameReducer{})
         {:ok, socket}
 
       false ->

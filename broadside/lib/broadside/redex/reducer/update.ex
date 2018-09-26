@@ -1,13 +1,11 @@
 defmodule Redex.Reducer.Update do
-  @type t :: %__MODULE__{
+  @type t(state) :: %__MODULE__{
           state: state
         }
 
-  @type state :: any
-
   defstruct [:state]
 
-  @spec new(state :: state) :: t
+  @spec new(state) :: t(state) when state: var
   def new(state) do
     %__MODULE__{state: state}
   end

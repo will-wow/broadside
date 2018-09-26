@@ -1,13 +1,13 @@
 defmodule Redex.Reducer.SideEffects do
-  @type t :: %__MODULE__{
-          f: f
+  @type t(state) :: %__MODULE__{
+          f: f(state)
         }
 
-  @type f :: (() -> none)
+  @type f(state) :: (state -> none)
 
   defstruct [:f]
 
-  @spec new(f :: f) :: t
+  @spec new(f(state)) :: t(state) when state: var
   def new(f) do
     %__MODULE__{f: f}
   end

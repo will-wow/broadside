@@ -70,7 +70,7 @@ defmodule Result do
   @doc """
   Takes a list of Results. If all are {:ok, _}, returns :ok. If any are {:error, msg}, throws msg
   """
-  @spec all_ok!(results :: [generic]) :: generic
+  @spec all_ok!(results :: [generic]) :: :ok
   def all_ok!(results) do
     case all_ok(results) do
       {:ok, _} -> :ok

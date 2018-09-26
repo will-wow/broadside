@@ -2,7 +2,6 @@ defmodule Broadside.Store.GameReducer do
   @moduledoc """
   Hold shared game state.
   """
-  use Redex.Reducer
 
   alias __MODULE__
   alias Broadside.Id
@@ -22,12 +21,10 @@ defmodule Broadside.Store.GameReducer do
 
   defstruct fps: @fps, max_speed: @max_speed, ships: %{}, bullets: []
 
-  @spec reduce() :: t()
-  def reduce() do
-    %GameReducer{}
-  end
+  use Redex.Reducer
 
-  @spec reduce(state :: t, action :: Action.t()) :: Reducer.return_value()
+  @impl true
+  @spec reduce(state :: t, action :: Action.t()) :: Reducer.return_value(t)
   def reduce(
         state = %GameReducer{ships: ships},
         %Action{type: :add_player, user_id: user_id}

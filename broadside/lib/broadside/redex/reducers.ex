@@ -1,19 +1,20 @@
 defmodule Redex.Reducers do
   alias __MODULE__
   alias Broadside.Id
-  alias Redex.CombinedReducer
   alias Broadside.Store.GameReducer
   alias Broadside.Store.KeysReducer
   alias Broadside.Store.PositionReactor
+  alias Redex.Action
+  alias Redex.CombinedReducer
   alias Redex.ReducerSupervisor
 
-  alias Redex.Action
+  defstruct game: %GameReducer{}, keys: %KeysReducer{}
 
-  defstruct game: GameReducer.reduce(), keys: %{}
+  @type user_reducer_map(state) :: %{optional(Id.t()) => state}
 
   @type t :: %Reducers{
           game: GameReducer.t(),
-          keys: %{optional(Id.t()) => KeysReducer.t()}
+          keys: user_reducer_map(KeysReducer.t())
         }
 
   @reducers %CombinedReducer{
