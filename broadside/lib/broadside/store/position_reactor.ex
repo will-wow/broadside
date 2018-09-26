@@ -1,18 +1,49 @@
 defmodule Broadside.Store.PositionReactor do
-  alias Broadside.Store.Reactor
-  alias Broadside.Store.Reducers
-  alias Broadside.Store.KeysReducer
-  alias Broadside.Store.Action
+  @moduledoc """
+  Handle updating the position every frame.
+  """
+
+  alias Broadside.Id
+  alias Broadside.Game.Position
+  alias Broadside.Game.Position.Change
+  alias Broadside.Game.Ship
+  alias Broadside.KeysDown
+  alias Redex.Reactor
+  alias Redex.Action
+  alias Redex.Reducers
+  alias BroadsideWeb.StoreChannel
 
   @behaviour Reactor
 
-  @spec react(Reducers.t(), Action.t()) :: none
+  @keys_to_changes %{
+    "a" => %Change{attribute: :heading, direction: -1},
+    "d" => %Change{attribute: :heading, direction: 1},
+    "s" => %Change{attribute: :velocity, direction: -1},
+    "w" => %Change{attribute: :velocity, direction: 1}
+  }
+
+  @spec react(store :: Reducers.t(), action :: Action.t(), room_id :: Id.t()) :: any
   def react(
-        store = %Reducers{keys: keys, game: game},
-        %Action{type: :frame}
+        %Reducers{keys: keys, game: game},
+        %Action{type: :frame},
+        room_id
       ) do
-    # TODO: Finish this
-    # TODO: For each user, update the position, dispatch a bunch of boat moves (grouped in one action)
+    ships =
+      game.ships
+      |> Enum.map(fn ship = %Ship{id: user_id} ->
+        update_ship_from_keys(
+          ship,
+          keys[user_id].keys_down
+        )
+      end)
+
+    StoreChannel.dispatch(room_id, %Action{
+      type: :change_position,
+      data: ships
+    })
+  end
+
+  defp update_ship_from_keys(ship, keys_down) do
     position =
       keys_down
       |> KeysDown.pressed_keys()
@@ -21,9 +52,7 @@ defmodule Broadside.Store.PositionReactor do
       end)
       |> Position.frame()
 
-    ship = ship |> struct!(position: position)
-
-    state
-    |> struct!(ships: [ship])
+    ship
+    |> struct!(position: position)
   end
 end

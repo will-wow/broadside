@@ -1,11 +1,12 @@
 defmodule BroadsideWeb.StoreChannel do
   use BroadsideWeb, :channel
 
-  alias Broadside.Store.GameReducer
-  alias Broadside.Store.Action
-  alias Broadside.Store.Transform
-  alias Broadside.Games.FrameInterval
   alias Broadside.Games.Constants
+  alias Broadside.Games.FrameInterval
+  alias Broadside.Id
+  alias Broadside.Store.GameReducer
+  alias Redex.Action
+  alias Redex.Transform
   # alias Broadside.Games.CombineReducer
 
   @type socket :: Phoenix.Socket.t()
@@ -55,7 +56,13 @@ defmodule BroadsideWeb.StoreChannel do
     {:noreply, socket}
   end
 
+  @spec dispatch(room_id :: Id.t(), action :: Action.t()) :: :ok
+  def dispatch(room_id, action) do
+    BroadsideWeb.Endpoint.broadcast!("store:#{room_id}", "dispatch", action)
+  end
+
+  @spec broadcast_frame(any()) :: :ok
   def broadcast_frame(user_id) do
-    BroadsideWeb.Endpoint.broadcast!("store:#{user_id}", "dispatch", %Action{type: :frame})
+    dispatch(user_id, %Action{type: :frame})
   end
 end

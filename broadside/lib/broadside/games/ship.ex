@@ -1,7 +1,6 @@
 defmodule Broadside.Game.Ship do
   alias __MODULE__
   alias Broadside.Game.Position
-  alias Broadside.Id
   alias Broadside.Games.Constants
 
   @type t :: %Ship{
@@ -13,10 +12,10 @@ defmodule Broadside.Game.Ship do
 
   @max_speed Constants.get(:max_speed)
 
-  @spec new() :: t
-  def new() do
+  @spec new(user_id :: String.t()) :: t
+  def new(user_id) do
     %Ship{
-      id: Id.random(8),
+      id: user_id,
       position: %Position{},
       max_speed: @max_speed
     }

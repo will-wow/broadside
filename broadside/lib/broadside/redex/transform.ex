@@ -1,4 +1,4 @@
-defmodule Broadside.Store.Transform do
+defmodule Redex.Transform do
   @spec to_json(term) :: term
   def to_json(%_{} = struct) do
     struct

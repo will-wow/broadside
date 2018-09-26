@@ -1,4 +1,4 @@
-defmodule Broadside.Store.CombinedReducer do
+defmodule Redex.CombinedReducer do
   @moduledoc """
   Set up the action/store pipeline.
 
@@ -9,7 +9,7 @@ defmodule Broadside.Store.CombinedReducer do
   Dispatch causes each user to get the shared state and their user state.
   """
 
-  alias Broadside.Store.CombinedReducer
+  alias __MODULE__
 
   @type t :: %CombinedReducer{
           reducers: keyword,
@@ -18,10 +18,4 @@ defmodule Broadside.Store.CombinedReducer do
         }
 
   defstruct reducers: [], user_reducers: [], reactors: []
-
-  @spec new(args :: keyword) :: t
-  def new(args) do
-    CombinedReducer
-    |> struct!(args)
-  end
 end

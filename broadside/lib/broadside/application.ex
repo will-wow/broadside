@@ -10,9 +10,12 @@ defmodule Broadside.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(BroadsideWeb.Endpoint, []),
-      BroadsideWeb.Presence
+      BroadsideWeb.Presence,
       # {Broadside.Games.FrameInterval,
       #  on_tick: &BroadsideWeb.StoreChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
+
+      {Registry, keys: :unique, name: Redex.ReducerRegistry},
+      Redex.ReducerSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

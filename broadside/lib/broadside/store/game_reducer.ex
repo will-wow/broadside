@@ -1,14 +1,14 @@
 defmodule Broadside.Store.GameReducer do
+  @moduledoc """
+  Hold shared game state.
+  """
+  use Redex.Reducer
+
   alias __MODULE__
-  alias Broadside.Game.Position
-  alias Broadside.Game.Position.Change
+  alias Broadside.Id
   alias Broadside.Game.Ship
   alias Broadside.Games.Constants
-  alias Broadside.KeysDown
-  alias Broadside.Store.Action
-  alias Broadside.Store.Reducer
-
-  @behaviour Reducer
+  alias Redex.Action
 
   @fps Constants.get(:fps)
   @max_speed Constants.get(:max_speed)
@@ -16,34 +16,39 @@ defmodule Broadside.Store.GameReducer do
   @type t :: %GameReducer{
           max_speed: number,
           fps: number,
-          keys_down: KeysDown.t(),
-          ships: [Ship.t()],
+          ships: %{optional(Id.t()) => Ship.t()},
           bullets: []
         }
 
-  defstruct [:fps, :max_speed, :keys_down, :ships, :bullets]
-
-  @keys_to_changes %{
-    "a" => %Change{attribute: :heading, direction: -1},
-    "d" => %Change{attribute: :heading, direction: 1},
-    "s" => %Change{attribute: :velocity, direction: -1},
-    "w" => %Change{attribute: :velocity, direction: 1}
-  }
+  defstruct fps: @fps, max_speed: @max_speed, ships: %{}, bullets: []
 
   @spec reduce() :: t()
   def reduce() do
-    %GameReducer{
-      fps: @fps,
-      max_speed: @max_speed,
-      keys_down: %KeysDown{},
-      ships: [
-        Ship.new()
-      ],
-      bullets: []
-    }
+    %GameReducer{}
   end
 
-  def reduce(state = %GameReducer{}, _) do
+  @spec reduce(state :: t, action :: Action.t()) :: Reducer.return_value()
+  def reduce(
+        state = %GameReducer{ships: ships},
+        %Action{type: :add_player, user_id: user_id}
+      ) do
+    ships = [Ship.new(user_id) | ships]
+
     state
+    |> struct(ships: ships)
+    |> Update.new()
+  end
+
+  def reduce(
+        state = %GameReducer{},
+        %Action{type: :change_position, data: ships}
+      ) do
+    state
+    |> struct(ships: ships)
+    |> Update.new()
+  end
+
+  def reduce(_state, _action) do
+    NoUpdate.new()
   end
 end

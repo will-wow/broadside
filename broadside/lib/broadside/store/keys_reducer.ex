@@ -1,10 +1,10 @@
 defmodule Broadside.Store.KeysReducer do
-  alias __MODULE__
-  alias Broadside.Store.Action
-  alias Broadside.KeysDown
-  alias Broadside.Store.Reducer
+  use Redex.Reducer
 
-  @behaviour Reducer
+  alias __MODULE__
+  alias Redex.Action
+  alias Broadside.KeysDown
+  alias Redex.Reducer
 
   @type t :: %KeysReducer{
           keys_down: KeysDown.t()
@@ -12,6 +12,7 @@ defmodule Broadside.Store.KeysReducer do
 
   defstruct [:keys_down]
 
+  @impl true
   @spec reduce() :: t()
   def reduce() do
     %KeysReducer{
@@ -19,11 +20,14 @@ defmodule Broadside.Store.KeysReducer do
     }
   end
 
+  @impl true
+  @spec reduce(state :: t, Action.t()) :: t()
   def reduce(state, %Action{type: :key_down, data: key}) do
     keys_down = KeysDown.record_key_down(state.keys_down, key)
 
     state
     |> struct!(keys_down: keys_down)
+    |> Reducer.Update.new()
   end
 
   def reduce(state, %Action{type: :key_up, data: key}) do
@@ -31,9 +35,10 @@ defmodule Broadside.Store.KeysReducer do
 
     state
     |> struct!(keys_down: keys_down)
+    |> Reducer.Update.new()
   end
 
   def reduce(state = %KeysReducer{}, _) do
-    state
+    Reducer.NoUpdate.new()
   end
 end
