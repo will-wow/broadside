@@ -8,10 +8,8 @@ defmodule Broadside.Games.Game do
   alias Broadside.Games.UserState
 
   @fps Constants.get(:fps)
-  @max_speed Constants.get(:max_speed)
 
   @type t :: %Game{
-          max_speed: number,
           fps: number,
           bullets: [],
           users: %{
@@ -21,7 +19,7 @@ defmodule Broadside.Games.Game do
 
   @type from :: tuple
 
-  defstruct fps: @fps, max_speed: @max_speed, users: %{}, bullets: []
+  defstruct fps: @fps, users: %{}, bullets: []
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, [], opts)

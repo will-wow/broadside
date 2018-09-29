@@ -71,7 +71,7 @@
     "heroku-postbuild": "npm-run-all build"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx}": "eslint",
+    "src/**/*.{ts,tsx}": "tslint",
     "src/**/*.scss": "stylelint"
   },
   "engines": {
@@ -81,7 +81,7 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
-      "!src/registerServiceWorker.js"
+      "!src/registerServiceWorker.ts"
     ]
   }
 }

@@ -13,8 +13,8 @@ import axios from "axios";
 interface MapState {
   userId?: string;
   token?: string;
-  fps?: number;
   game: {
+    fps?: number;
     users: { [userId: string]: UserState.t };
     bullets: BulletData[];
   };
@@ -31,14 +31,14 @@ class Map extends React.Component<{}, MapState> {
 
   handleKeyDown = ({ key }: KeyboardEvent): void => {
     this.dispatch({
-      data: { key, event: "up" },
+      data: { key, event: "down" },
       type: "key_change"
     });
   };
 
   handleKeyUp = ({ key }: KeyboardEvent): void => {
     this.dispatch({
-      data: { key, event: "down" },
+      data: { key, event: "up" },
       type: "key_change"
     });
   };
@@ -61,15 +61,15 @@ class Map extends React.Component<{}, MapState> {
   };
 
   render() {
-    const { fps, game } = this.state;
+    const { game } = this.state;
     return (
       <MapBackground>
         {mapValues(
-          user => <Ship fps={fps} key={user.ship.id} ship={user.ship} />,
+          user => <Ship fps={game.fps} key={user.ship.id} ship={user.ship} />,
           game.users
         )}
         {game.bullets.map(bullet => (
-          <Bullet key={bullet.id} fps={fps} bullet={bullet} />
+          <Bullet key={bullet.id} fps={game.fps} bullet={bullet} />
         ))}
       </MapBackground>
     );
