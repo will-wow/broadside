@@ -1,7 +1,7 @@
-defmodule Broadside.Game.RadianTest do
+defmodule Broadside.Games.RadianTest do
   use ExUnit.Case, async: true
 
-  alias Broadside.Game.Radian
+  alias Broadside.Games.Radian
 
   test "converts from degrees" do
     assert Radian.from_degrees(15) == Radian.new(:math.pi() / 12)

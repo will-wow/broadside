@@ -1,4 +1,9 @@
 defmodule Redex.Transform do
+  @spec to_store(name :: String.t(), data :: any) :: map
+  def to_store(name, data) do
+    %{name => to_json(data)}
+  end
+
   @spec to_json(term) :: term
   def to_json(%_{} = struct) do
     struct

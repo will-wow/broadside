@@ -1,4 +1,4 @@
-defmodule Broadside.Game.Radian do
+defmodule Broadside.Games.Radian do
   alias __MODULE__
 
   @type t :: %Radian{

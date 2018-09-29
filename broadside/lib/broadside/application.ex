@@ -14,8 +14,8 @@ defmodule Broadside.Application do
       # {Broadside.Games.FrameInterval,
       #  on_tick: &BroadsideWeb.StoreChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
 
-      {Registry, keys: :unique, name: Redex.ReducerRegistry},
-      Redex.ReducerSupervisor
+      {Registry, keys: :unique, name: Broadside.Registry},
+      Broadside.Games.GameSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

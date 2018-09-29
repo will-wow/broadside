@@ -1,4 +1,4 @@
-defmodule Broadside.KeysDown do
+defmodule Broadside.Games.KeysDown do
   alias __MODULE__
 
   @type keys :: %{optional(String.t()) => boolean}
@@ -21,18 +21,16 @@ defmodule Broadside.KeysDown do
     |> new()
   end
 
-  @spec record_key_down(t, String.t()) :: t
-  def record_key_down(keys_down, key) do
-    keys_down.keys
-    |> Map.put(key, true)
-    |> new()
-  end
-
-  @spec record_key_up(t, String.t()) :: t
-  def record_key_up(keys_down, key) do
-    keys_down.keys
-    |> Map.put(key, false)
-    |> new()
+  @spec record_key_change(
+          keys_down :: t,
+          event :: :down | :up,
+          key :: String.t()
+        ) :: t
+  def record_key_change(keys_down, event, key) do
+    case event do
+      :up -> record_key_up(keys_down, key)
+      :down -> record_key_down(keys_down, key)
+    end
   end
 
   @spec pressed_keys(t) :: [String.t()]
@@ -41,6 +39,20 @@ defmodule Broadside.KeysDown do
     |> filter_keys_down()
     |> Map.fetch!(:keys)
     |> Map.keys()
+  end
+
+  @spec record_key_down(keys_down :: t, key :: String.t()) :: t
+  defp record_key_down(keys_down, key) do
+    keys_down.keys
+    |> Map.put(key, true)
+    |> new()
+  end
+
+  @spec record_key_up(t, String.t()) :: t
+  defp record_key_up(keys_down, key) do
+    keys_down.keys
+    |> Map.put(key, false)
+    |> new()
   end
 
   @spec filter_keys_down(t) :: t

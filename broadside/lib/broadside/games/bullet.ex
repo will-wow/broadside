@@ -1,6 +1,6 @@
-defmodule Broadside.Game.Bullet do
+defmodule Broadside.Games.Bullet do
   alias __MODULE__
-  alias Broadside.Game.Position
+  alias Broadside.Games.Position
   alias Broadside.Id
 
   @type t :: %Bullet{

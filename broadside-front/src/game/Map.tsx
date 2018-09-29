@@ -1,7 +1,9 @@
 import * as React from "react";
+import * as R from "ramda";
 import styled from "../styled-components";
+import * as Action from "./action";
 import Ship from "./Ship";
-import { ShipData } from "./Ship";
+import * as UserState from "./user-state";
 import Bullet from "./Bullet";
 import { BulletData } from "./Bullet";
 
@@ -12,30 +14,45 @@ interface MapState {
   userId?: string;
   token?: string;
   fps?: number;
-  bullets: BulletData[];
-  ships: ShipData[];
+  game: {
+    users: { [userId: string]: UserState.t };
+    bullets: BulletData[];
+  };
 }
 
 class Map extends React.Component<{}, MapState> {
   state: MapState = {
-    bullets: [],
-    ships: []
+    game: {
+      bullets: [],
+      users: {}
+    }
   };
   channel: Channel;
 
   handleKeyDown = ({ key }: KeyboardEvent): void => {
-    this.channel.push("dispatch", { type: "key_down", data: key });
+    this.dispatch({
+      data: { key, event: "up" },
+      type: "key_change"
+    });
   };
 
   handleKeyUp = ({ key }: KeyboardEvent): void => {
-    this.channel.push("dispatch", { type: "key_up", data: key });
+    this.dispatch({
+      data: { key, event: "down" },
+      type: "key_change"
+    });
   };
 
-  componentDidMount = () => {
-    this.connect();
+  componentDidMount = async () => {
+    await this.connect();
 
     document.addEventListener("keydown", this.handleKeyDown, false);
     document.addEventListener("keyup", this.handleKeyUp, false);
+
+    this.dispatch({
+      data: {},
+      type: "new_game"
+    });
   };
 
   componentWillUnmount = () => {
@@ -44,11 +61,16 @@ class Map extends React.Component<{}, MapState> {
   };
 
   render() {
-    const { fps, ships, bullets } = this.state;
+    const { fps, game } = this.state;
     return (
       <MapBackground>
-        {ships.map(ship => <Ship fps={fps} key={ship.id} ship={ship} />)}
-        {bullets.map(bullet => <Bullet key={bullet.id} fps={fps} bullet={bullet} />)}
+        {mapValues(
+          user => <Ship fps={fps} key={user.ship.id} ship={user.ship} />,
+          game.users
+        )}
+        {game.bullets.map(bullet => (
+          <Bullet key={bullet.id} fps={fps} bullet={bullet} />
+        ))}
       </MapBackground>
     );
   }
@@ -75,7 +97,17 @@ class Map extends React.Component<{}, MapState> {
       this.setState(store);
     });
   };
+
+  private dispatch = <T extends any>(action: Action.t<T>) => {
+    this.channel.push(action.type, action.data);
+  };
 }
+
+const mapValues = <T extends object>(f: ((value: any) => any), obj: T) =>
+  R.pipe(
+    R.values,
+    R.map(f)
+  )(obj);
 
 const MapBackground = styled.div`
   width: 100vw;

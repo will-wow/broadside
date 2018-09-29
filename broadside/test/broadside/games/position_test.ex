@@ -1,8 +1,8 @@
-defmodule Broadside.Game.PositionTest do
+defmodule Broadside.Games.PositionTest do
   use ExUnit.Case, async: true
 
-  alias Broadside.Game.Position
-  alias Broadside.Game.Position.Change
+  alias Broadside.Games.Position
+  alias Broadside.Games.Position.Change
 
   test "constrain position" do
     position = %Position{

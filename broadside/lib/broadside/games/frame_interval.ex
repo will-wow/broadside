@@ -28,17 +28,18 @@ defmodule Broadside.Games.FrameInterval do
     }
 
     schedule_interval(state)
+
     {:ok, state}
   end
 
   def handle_info(:tick, state) do
+    state.on_tick.()
+
     schedule_interval(state)
     {:noreply, state}
   end
 
   defp schedule_interval(state) do
-    state.on_tick.()
-
     Process.send_after(self(), :tick, state.interval)
   end
 end
