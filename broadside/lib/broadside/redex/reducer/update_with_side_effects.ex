@@ -4,7 +4,7 @@ defmodule Redex.Reducer.UpdateWithSideEffects do
           f: f(state)
         }
 
-  @type f(state) :: (state -> none)
+  @type f(state) :: (user_id :: any, state :: state -> none)
 
   defstruct [:state, :f]
 

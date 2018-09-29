@@ -1,9 +1,8 @@
 defmodule Broadside.Store.KeysReducer do
-  alias __MODULE__
   alias Redex.Action
   alias Broadside.KeysDown
 
-  @type t :: %KeysReducer{
+  @type t :: %__MODULE__{
           keys_down: KeysDown.t()
         }
 
@@ -29,7 +28,7 @@ defmodule Broadside.Store.KeysReducer do
     |> Update.new()
   end
 
-  def reduce(%KeysReducer{}, _) do
+  def reduce(%__MODULE__{}, _) do
     NoUpdate.new()
   end
 end

@@ -44,12 +44,13 @@ defmodule Redex.Reducer do
           %Update{state: new_state} ->
             {:reply, new_state, new_state}
 
+          # TODO: Get ID
           %SideEffects{f: f} ->
-            f.(state)
+            f.(id, state)
             {:reply, state, state}
 
           %UpdateWithSideEffects{state: new_state, f: f} ->
-            f.(state)
+            f.(id, state)
             {:reply, new_state, new_state}
         end
       end
