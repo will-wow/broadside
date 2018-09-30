@@ -25,6 +25,10 @@ defmodule Broadside.Games.Game do
     GenServer.start_link(__MODULE__, [], opts)
   end
 
+  def get_state(pid) do
+    GenServer.call(pid, :state)
+  end
+
   @spec dispatch(pid, Action.t()) :: any
   def dispatch(pid, action) do
     GenServer.call(pid, action)
@@ -79,6 +83,12 @@ defmodule Broadside.Games.Game do
 
     state = struct(state, users: users)
 
+    {:reply, state, state}
+  end
+
+  @impl true
+  @spec handle_call(:state, from, t) :: {:reply, t, t}
+  def handle_call(:state, _from, state) do
     {:reply, state, state}
   end
 end

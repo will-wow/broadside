@@ -21,3 +21,9 @@ export const log = (...args: any[]) => <T>(data: T): T => {
   console.log.apply(null, args.concat([data]));
   return data;
 };
+
+export const mapValues = <T extends object>(f: ((value: any) => any), obj: T) =>
+  R.pipe(
+    R.values,
+    R.map(f)
+  )(obj);

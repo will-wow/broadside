@@ -1,14 +1,22 @@
 import * as React from "react";
-import Map from "./game/Map";
 
 import styled from "./styled-components";
 import { injectGlobal } from "./styled-components";
 
-class App extends React.Component {
+import { connect } from "react-redux";
+import { Store } from "./reducers";
+import { route } from "./route-selectors";
+
+interface AppProps {
+  route: any;
+}
+
+class App extends React.Component<AppProps> {
   render() {
+    const { route: Route } = this.props;
     return (
       <AppStyled>
-        <Map />
+        <Route />
       </AppStyled>
     );
   }
@@ -30,4 +38,14 @@ injectGlobal`
   }
 `;
 
-export default App;
+export const mapStateToProps = (state: Store) => {
+  return {
+    route: route(state)
+  };
+};
+
+const connectedComponent = connect(mapStateToProps)(App);
+
+export default connectedComponent;
+
+export { App };

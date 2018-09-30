@@ -1,58 +1,34 @@
 import * as React from "react";
-import * as R from "ramda";
 import styled from "../styled-components";
-import * as Action from "./action";
-import Ship from "./Ship";
-import * as UserState from "./user-state";
+import { bindActionCreators, Dispatch } from "redux";
+import { connect } from "react-redux";
+
+import Ship, { ShipData } from "./Ship";
 import Bullet from "./Bullet";
 import { BulletData } from "./Bullet";
+import { Store } from "../reducers";
+import * as GameSelectors from "./selectors";
+import { simple } from "../redex/action";
 
-import { Channel, Socket } from "phoenix";
-import axios from "axios";
-
-interface MapState {
-  userId?: string;
-  token?: string;
-  game: {
-    fps?: number;
-    users: { [userId: string]: UserState.t };
-    bullets: BulletData[];
-  };
+interface MapProps {
+  bullets: BulletData[];
+  fps: number;
+  ships: ShipData[];
+  onKeyChange: (data: {event: string, key: string}) => void;
 }
 
-class Map extends React.Component<{}, MapState> {
-  state: MapState = {
-    game: {
-      bullets: [],
-      users: {}
-    }
-  };
-  channel: Channel;
-
+class Map extends React.Component<MapProps> {
   handleKeyDown = ({ key }: KeyboardEvent): void => {
-    this.dispatch({
-      data: { key, event: "down" },
-      type: "key_change"
-    });
+    this.props.onKeyChange({ key, event: "down" });
   };
 
   handleKeyUp = ({ key }: KeyboardEvent): void => {
-    this.dispatch({
-      data: { key, event: "up" },
-      type: "key_change"
-    });
+    this.props.onKeyChange({ key, event: "up" });
   };
 
   componentDidMount = async () => {
-    await this.connect();
-
     document.addEventListener("keydown", this.handleKeyDown, false);
     document.addEventListener("keyup", this.handleKeyUp, false);
-
-    this.dispatch({
-      data: {},
-      type: "new_game"
-    });
   };
 
   componentWillUnmount = () => {
@@ -61,53 +37,17 @@ class Map extends React.Component<{}, MapState> {
   };
 
   render() {
-    const { game } = this.state;
+    const { fps, ships, bullets } = this.props;
     return (
       <MapBackground>
-        {mapValues(
-          user => <Ship fps={game.fps} key={user.ship.id} ship={user.ship} />,
-          game.users
-        )}
-        {game.bullets.map(bullet => (
-          <Bullet key={bullet.id} fps={game.fps} bullet={bullet} />
+        {ships.map(ship => <Ship fps={fps} key={ship.id} ship={ship} />)}
+        {bullets.map(bullet => (
+          <Bullet key={bullet.id} fps={fps} bullet={bullet} />
         ))}
       </MapBackground>
     );
   }
-
-  private connect = async () => {
-    const { data } = await axios.post("http://localhost:4000/api/users");
-
-    const { token, id: userId } = data;
-
-    const socket = new Socket("ws://localhost:4000/socket", {
-      params: { token }
-    });
-    socket.connect();
-
-    this.channel = socket.channel(`store:${userId}`, {});
-    this.setState({ userId, token });
-
-    this.channel.join().receive("ok", response => {
-      // tslint:disable:no-console
-      console.log("Joined successfully", response);
-    });
-
-    this.channel.on("store", store => {
-      this.setState(store);
-    });
-  };
-
-  private dispatch = <T extends any>(action: Action.t<T>) => {
-    this.channel.push(action.type, action.data);
-  };
 }
-
-const mapValues = <T extends object>(f: ((value: any) => any), obj: T) =>
-  R.pipe(
-    R.values,
-    R.map(f)
-  )(obj);
 
 const MapBackground = styled.div`
   width: 100vw;
@@ -115,4 +55,27 @@ const MapBackground = styled.div`
   background: blue;
 `;
 
-export default Map;
+export const mapStateToProps = (state: Store) => {
+  return {
+    bullets: state.game.bullets,
+    fps: state.game.fps,
+    ships: GameSelectors.getShips(state)
+  };
+};
+
+export const mapDispatchToProps = (dispatch: Dispatch) =>
+  bindActionCreators(
+    {
+      onKeyChange: simple("key_change")
+    },
+    dispatch
+  );
+
+const connectedComponent = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Map);
+
+export default connectedComponent;
+
+export { Map };

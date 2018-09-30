@@ -67,21 +67,34 @@ defmodule Broadside.Games.GameSupervisor do
     pid
   end
 
+  @spec all_game_ids() :: [Id.t()]
+  def all_game_ids() do
+    all_games()
+    |> Enum.map(fn game_pid ->
+      Broadside.Registry
+      |> Registry.keys(game_pid)
+      |> List.first()
+    end)
+  end
+
   def frame() do
     all_games()
     |> Enum.map(fn game_pid ->
       Game.dispatch(game_pid, %Action.Frame{})
     end)
-    |> Enum.each(fn game_state ->
-      game_state.users
-      |> Map.keys()
-      |> Enum.map(fn user_id ->
-        StoreChannel.broadcast_store(user_id, "game", game_state)
-      end)
+    |> Enum.each(&StoreChannel.broadcast_game_state/1)
+  end
 
-      # TODO: Report back to channel
-      nil
-    end)
+  def broadcast_state_to_game(game_id) do
+    game_id
+    |> get_game_state()
+    |> StoreChannel.broadcast_game_state()
+  end
+
+  defp get_game_state(game_id) do
+    game_id
+    |> get_child()
+    |> Game.get_state()
   end
 
   @spec all_games() :: [pid]

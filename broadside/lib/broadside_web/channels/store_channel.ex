@@ -2,6 +2,7 @@ defmodule BroadsideWeb.StoreChannel do
   use BroadsideWeb, :channel
 
   alias Broadside.Games.Action
+  alias Broadside.Games.Game
   alias Broadside.Games.GameSupervisor
   alias Redex.Transform
 
@@ -18,6 +19,15 @@ defmodule BroadsideWeb.StoreChannel do
     end
   end
 
+  def handle_in("get_games", _payload, socket) do
+    user_id = socket.assigns.user_id
+    games = GameSupervisor.all_game_ids()
+
+    broadcast_store(user_id, "menu", %{games: games})
+
+    {:noreply, socket}
+  end
+
   def handle_in("new_game", _payload, socket) do
     case GameSupervisor.start_game() do
       {:ok, game_id} -> handle_in("join_game", %{"game_id" => game_id}, socket)
@@ -27,13 +37,13 @@ defmodule BroadsideWeb.StoreChannel do
   def handle_in("join_game", %{"game_id" => game_id}, socket) do
     user_id = socket.assigns.user_id
 
-    action = %Action.PlayerJoin{user_id: user_id}
-
-    game = GameSupervisor.dispatch(game_id, action)
-
     socket = assign(socket, :game_id, game_id)
 
-    broadcast(socket, "store", Transform.to_store("game", game))
+    action = %Action.PlayerJoin{user_id: user_id}
+
+    game_id
+    |> GameSupervisor.dispatch(action)
+    |> broadcast_game_state()
 
     {:noreply, socket}
   end
@@ -44,9 +54,9 @@ defmodule BroadsideWeb.StoreChannel do
 
     action = %Action.KeyChange{user_id: user_id, event: String.to_existing_atom(event), key: key}
 
-    game = GameSupervisor.dispatch(game_id, action)
-
-    broadcast(socket, "store", Transform.to_store("game", game))
+    game_id
+    |> GameSupervisor.dispatch(action)
+    |> broadcast_game_state()
 
     {:noreply, socket}
   end
@@ -58,5 +68,14 @@ defmodule BroadsideWeb.StoreChannel do
       "store",
       Transform.to_store(store_name, store)
     )
+  end
+
+  @spec broadcast_game_state(Game.t()) :: :ok
+  def broadcast_game_state(game = %Game{users: users}) do
+    users
+    |> Map.keys()
+    |> Enum.each(fn user_id ->
+      broadcast_store(user_id, "game", game)
+    end)
   end
 end
