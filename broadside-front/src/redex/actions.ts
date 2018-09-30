@@ -1,32 +1,38 @@
 import * as Action from "./action";
-import { Channel } from "phoenix";
+import * as Channels from "./channels-service";
 
-export const REDEX_DEFER_ACTION = "redex:redex:defer-action";
+export interface RedexSocketConnectData {
+  token: string;
+}
+
+export interface RedexChannelConnectData {
+  topic: string;
+  eventsToActions: Channels.EventsToActions;
+}
+
+export interface RedexChannelConnectSuccessData {
+  topic: string;
+}
+
+export const REDEX_SOCKET_CONNECT = "redex:socket:connect";
+export const REDEX_CHANNEL_CONNECT = "redex:channel:connect";
+export const REDEX_CHANNEL_CONNECT_SUCCESS = "redex:channel:connect:success";
+export const REDEX_DEFER_ACTION = "redex:defer-action";
 export const REDEX_DEFERRED_ACTIONS_CONSUMED =
-  "redex:redex:deferred-actions-consumed";
-export const REDEX_LOGIN = "redex:redex:login";
-export const REDEX_CONNECT = "redex:redex:connect";
+  "redex:deferred-actions-consumed";
 
-export const onDeferAction = (action: Action.t): Action.t => ({
-  data: action,
-  type: REDEX_DEFER_ACTION
-});
+export const onSocketConnect = Action.withData<RedexSocketConnectData>(
+  REDEX_SOCKET_CONNECT
+);
 
-export const onDeferredActionsConsumed = () => ({
-  type: REDEX_DEFERRED_ACTIONS_CONSUMED
-});
+export const onChannelConnect = Action.withData<RedexChannelConnectData>(
+  REDEX_CHANNEL_CONNECT
+);
 
-export const onLogin = (data: { userId: string; token: string }): Action.t => ({
-  data,
-  type: REDEX_LOGIN
-});
+export const onDeferAction = Action.withData<Action.ChannelAction>(
+  REDEX_DEFER_ACTION
+);
 
-export const onConnect = (channel: Channel): Action.t => ({
-  data: channel,
-  type: REDEX_CONNECT
-});
-
-export const onIncomingStore = (reducer: string, state: any) => ({
-  data: state,
-  type: `redex:${reducer}`
-});
+export const onChannelConnectSuccess = Action.withData<
+  RedexChannelConnectSuccessData
+>(REDEX_DEFER_ACTION);

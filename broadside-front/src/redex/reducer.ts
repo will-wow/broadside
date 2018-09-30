@@ -1,12 +1,8 @@
-import { Channel } from "phoenix";
-
 import * as Action from "./action";
 
 import { REDEX_CONNECT, REDEX_DEFER_ACTION, REDEX_LOGIN } from "./actions";
 
 export interface t {
-  channel?: Channel;
-  userId?: string;
   token?: string;
   deferredActions: Action.t[];
 }

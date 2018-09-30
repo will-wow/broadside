@@ -4,6 +4,9 @@ import * as R from "ramda";
 
 type Updater<T> = (x: T) => T;
 
+export type StringOf<T> = Extract<keyof T, string>;
+export type ValueOf<T> = T[keyof T];
+
 const updatePath = <T, U>(path: Array<string | number>) => (
   f: Updater<any>
 ) => (object: T) => {
@@ -25,5 +28,13 @@ export const log = (...args: any[]) => <T>(data: T): T => {
 export const mapValues = <T extends object>(f: ((value: any) => any), obj: T) =>
   R.pipe(
     R.values,
+    R.map(f)
+  )(obj);
+
+export const mapPairs = <T extends object>(
+  f: (<K extends StringOf<T>>(pair: [K, T[K]]) => any)
+) => (obj: T): any[] =>
+  R.pipe(
+    R.toPairs,
     R.map(f)
   )(obj);

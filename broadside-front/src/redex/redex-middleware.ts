@@ -1,21 +1,15 @@
 import * as R from "ramda";
 import axios from "axios";
-import { Channel, Socket } from "phoenix";
+import { Channel } from "phoenix";
+import Channels from "./channels-service";
 import { Middleware, MiddlewareAPI, Dispatch } from "redux";
 import { Store } from "./reducers";
 import * as Action from "./action";
 import * as Utils from "../utils";
 
-import {
-  onConnect,
-  onDeferAction,
-  onDeferredActionsConsumed,
-  onIncomingStore,
-  onLogin,
-  REDEX_CONNECT
-} from "./actions";
+import * as RedexActions from "./actions";
 
-import { getChannel, getDeferredActions } from "./selectors";
+import { getDeferredActions } from "./selectors";
 
 interface RedexConfig {
   tokenEndpoint: string;
@@ -23,13 +17,25 @@ interface RedexConfig {
 }
 
 export default (config: RedexConfig): Middleware => api => next => {
-  setup(config, api);
+  const channels = new Channels(config.socketEndpoint, api.dispatch);
 
   return (action: Action.t): Action.t | null => {
-    if (action.type === REDEX_CONNECT) {
-      next(action);
-      dispatchDeferredActions(api);
-      return null;
+    if (action.type === RedexActions.REDEX_SOCKET_CONNECT) {
+      const data: RedexActions.RedexSocketConnectData = action.data;
+
+      channels.openSocket(data.token);
+
+      return next(action);
+    }
+
+    if (action.type === RedexActions.REDEX_CHANNEL_CONNECT) {
+      const data: RedexActions.RedexChannelConnectData = action.data;
+
+      channels.connectToChannel(data.topic, data.eventsToActions);
+    }
+
+    if (Action.isChannelAction(action)) {
+      channels.sendMessage()
     }
 
     if (isRedexAction(action)) {
@@ -87,7 +93,6 @@ const dispatchDeferredActions = <S extends Store>(api: MiddlewareAPI) => {
 
   R.pipe(
     getDeferredActions,
-    Utils.log("deferred"),
     R.forEach(api.dispatch)
   )(store);
 

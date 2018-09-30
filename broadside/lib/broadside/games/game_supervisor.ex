@@ -17,6 +17,7 @@ defmodule Broadside.Games.GameSupervisor do
 
   @frame_length Constants.get(:ms_per_frame)
 
+  @spec start_link(keyword) :: {:ok, pid}
   def start_link(opts) do
     opts = Keyword.merge([name: __MODULE__], opts)
 
@@ -55,16 +56,21 @@ defmodule Broadside.Games.GameSupervisor do
     |> Result.map_ok(fn _ -> game_id end)
   end
 
-  @spec dispatch(Id.t(), Action.t()) :: Game.t()
+  @spec dispatch(Id.t(), Action.t()) :: Result.t(Game.t(), atom)
   def dispatch(game_id, action) do
-    pid = get_child(game_id)
-    Game.dispatch(pid, action)
+    game_id
+    |> get_child()
+    |> Result.map_ok(&Game.dispatch(&1, action))
   end
 
+  @spec get_child(Id.t()) :: Result.t(pid, :not_found)
   def get_child(game_id) do
     key = via_key(game_id)
-    [{pid, _}] = Registry.lookup(Broadside.Registry, key)
-    pid
+
+    case Registry.lookup(Broadside.Registry, key) do
+      [{pid, _}] -> {:ok, pid}
+      _ -> {:error, :not_found}
+    end
   end
 
   @spec all_game_ids() :: [Id.t()]
@@ -77,6 +83,7 @@ defmodule Broadside.Games.GameSupervisor do
     end)
   end
 
+  @spec frame() :: :ok
   def frame() do
     all_games()
     |> Enum.map(fn game_pid ->
@@ -85,21 +92,24 @@ defmodule Broadside.Games.GameSupervisor do
     |> Enum.each(&StoreChannel.broadcast_game_state/1)
   end
 
+  @spec broadcast_state_to_game(Id.t()) :: Result.t(:ok, atom)
   def broadcast_state_to_game(game_id) do
     game_id
     |> get_game_state()
-    |> StoreChannel.broadcast_game_state()
+    |> Result.map_ok(&StoreChannel.broadcast_game_state/1)
   end
 
+  @spec get_game_state(Id.t()) :: Result.t(Gamte.t(), atom)
   defp get_game_state(game_id) do
     game_id
     |> get_child()
-    |> Game.get_state()
+    |> Result.map_ok(&Game.get_state/1)
   end
 
   @spec all_games() :: [pid]
   defp all_games() do
-    DynamicSupervisor.which_children(__MODULE__)
+    __MODULE__
+    |> DynamicSupervisor.which_children()
     |> Enum.filter(fn {_, pid, _type, modules} ->
       case {pid, modules} do
         {:restarting, _} -> false
