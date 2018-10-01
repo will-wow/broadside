@@ -7,11 +7,13 @@ defmodule BroadsideWeb.GameView do
   def render(
         "show.json",
         game = %Game{
+          id: id,
           fps: fps,
           bullets: bullets
         }
       ) do
     %{
+      id: id,
       fps: fps,
       bullets: bullets,
       ships: Game.ships(game)

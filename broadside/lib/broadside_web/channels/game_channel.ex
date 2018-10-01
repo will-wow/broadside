@@ -5,6 +5,7 @@ defmodule BroadsideWeb.GameChannel do
   alias Broadside.Games.Game
   alias Broadside.Games.GameSupervisor
   alias BroadsideWeb.GameView
+  alias BroadsideWeb.Endpoint
 
   @type socket :: Phoenix.Socket.t()
 
@@ -20,9 +21,8 @@ defmodule BroadsideWeb.GameChannel do
 
         case GameSupervisor.dispatch(game_id, action) do
           {:ok, game} ->
-            broadcast_game_state(socket, game)
-
-            {:ok, game, socket}
+            send(self(), {:after_join, game})
+            {:ok, socket}
 
           {:error, msg} ->
             {:error, %{reason: msg}}
@@ -43,10 +43,22 @@ defmodule BroadsideWeb.GameChannel do
     {:noreply, socket}
   end
 
+  def handle_info({:after_join, game}, socket) do
+    broadcast_game_state(socket, game)
+
+    {:noreply, socket}
+  end
+
   @spec broadcast_game_state(socket, Game.t()) :: :ok
   def broadcast_game_state(socket, game = %Game{}) do
-    data = GameView.render(game)
+    data = GameView.render("show.json", game)
 
     broadcast(socket, "game_state", data)
+  end
+
+  def broadcast_game_state(game = %Game{}) do
+    data = GameView.render("show.json", game)
+
+    Endpoint.broadcast("game:#{game.id}", "game_state", data)
   end
 end

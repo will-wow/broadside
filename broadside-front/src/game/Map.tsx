@@ -8,25 +8,34 @@ import Bullet from "./Bullet";
 import { BulletData } from "./Bullet";
 import { Store } from "../reducers";
 import * as GameSelectors from "./selectors";
-import { simple } from "../redex/action";
+import { onKeyChange, eventsToActions } from "./actions";
+import { onChannelConnect } from "../redex/actions";
 
 interface MapProps {
+  gameId: string;
   bullets: BulletData[];
   fps: number;
   ships: ShipData[];
-  onKeyChange: (data: {event: string, key: string}) => void;
+  onKeyChange: typeof onKeyChange;
+  onChannelConnect: typeof onChannelConnect;
 }
 
 class Map extends React.Component<MapProps> {
   handleKeyDown = ({ key }: KeyboardEvent): void => {
-    this.props.onKeyChange({ key, event: "down" });
+    const { onKeyChange, gameId } = this.props;
+    onKeyChange(`game:${gameId}`, { key, event: "down" });
   };
 
   handleKeyUp = ({ key }: KeyboardEvent): void => {
-    this.props.onKeyChange({ key, event: "up" });
+    const { onKeyChange, gameId } = this.props;
+    onKeyChange(`game:${gameId}`, { key, event: "up" });
   };
 
   componentDidMount = async () => {
+    const { gameId, onChannelConnect } = this.props;
+
+    onChannelConnect({ topic: `game:${gameId}`, eventsToActions });
+
     document.addEventListener("keydown", this.handleKeyDown, false);
     document.addEventListener("keyup", this.handleKeyUp, false);
   };
@@ -59,6 +68,7 @@ export const mapStateToProps = (state: Store) => {
   return {
     bullets: state.game.bullets,
     fps: state.game.fps,
+    gameId: state.game.gameId,
     ships: GameSelectors.getShips(state)
   };
 };
@@ -66,7 +76,8 @@ export const mapStateToProps = (state: Store) => {
 export const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      onKeyChange: simple("key_change")
+      onChannelConnect,
+      onKeyChange
     },
     dispatch
   );

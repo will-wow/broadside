@@ -26,7 +26,7 @@ interface ChannelMap {
 
 export default class Channels {
   private socket: Socket;
-  private channels: ChannelMap;
+  private channels: ChannelMap = {};
 
   constructor(private endpoint: string, private dispatch: Dispatch) {}
 
@@ -66,6 +66,9 @@ export default class Channels {
 
     channel.push(event, data);
   };
+
+  isChannelReady = ({ topic }: Action.ChannelAction): boolean =>
+    Boolean(this.channels[topic]);
 
   private listen = (channelData: ChannelData) => {
     R.map(({ event, action }) => {

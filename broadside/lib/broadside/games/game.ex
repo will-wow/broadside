@@ -1,13 +1,15 @@
 defmodule Broadside.Games.Game do
   alias __MODULE__
-  alias Broadside.Id
-  alias Broadside.Games.Constants
   alias Broadside.Games.Action
+  alias Broadside.Games.Constants
+  alias Broadside.Games.Ship
   alias Broadside.Games.UserState
+  alias Broadside.Id
 
   @fps Constants.get(:fps)
 
   @type t :: %Game{
+          id: Id.t(),
           fps: number,
           bullets: [],
           users: %{
@@ -15,7 +17,7 @@ defmodule Broadside.Games.Game do
           }
         }
 
-  defstruct fps: @fps, users: %{}, bullets: []
+  defstruct [:id, fps: @fps, users: %{}, bullets: []]
 
   @spec update(t, Action.t()) :: t
   def update(

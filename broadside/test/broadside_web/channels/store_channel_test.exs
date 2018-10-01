@@ -1,12 +1,12 @@
-defmodule BroadsideWeb.StoreChannelTest do
+defmodule BroadsideWeb.GameChannelTest do
   use BroadsideWeb.ChannelCase
 
-  alias BroadsideWeb.StoreChannel
+  alias BroadsideWeb.GameChannel
 
   setup do
     {:ok, _, socket} =
       socket("user_id", %{some: :assign})
-      |> subscribe_and_join(StoreChannel, "store:lobby")
+      |> subscribe_and_join(GameChannel, "store:lobby")
 
     {:ok, socket: socket}
   end

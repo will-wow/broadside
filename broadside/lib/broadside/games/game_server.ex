@@ -7,8 +7,10 @@ defmodule Broadside.Games.GameServer do
   @type from :: tuple
   @type state :: Game.t()
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, [], opts)
+  def start_link(args) do
+    id = args[:id]
+    name = args[:name]
+    GenServer.start_link(__MODULE__, [id: id], name: name)
   end
 
   def get_state(pid) do
@@ -21,9 +23,10 @@ defmodule Broadside.Games.GameServer do
   end
 
   @impl true
-  @spec init(any) :: {:ok, state}
-  def init(_) do
-    {:ok, %Game{}}
+  @spec init(keyword) :: {:ok, state}
+  def init(opts) do
+    id = opts[:id]
+    {:ok, %Game{id: id}}
   end
 
   @impl true

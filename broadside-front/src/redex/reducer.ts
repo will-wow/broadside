@@ -1,30 +1,34 @@
+import * as R from "ramda";
 import * as Action from "./action";
 
-import { REDEX_CONNECT, REDEX_DEFER_ACTION, REDEX_LOGIN } from "./actions";
+import { Action as RedexAction, TypeKeys } from "./actions";
 
 export interface t {
   token?: string;
-  deferredActions: Action.t[];
+  deferredActions: DeferredActions;
+}
+
+interface DeferredActions {
+  [topic: string]: Action.ChannelAction[];
 }
 
 const initialState: t = {
-  deferredActions: []
+  deferredActions: {}
 };
 
-export const reducer = (state: t = initialState, action: Action.t): t => {
+export const reducer = (state: t = initialState, action: RedexAction): t => {
   switch (action.type) {
-    case REDEX_LOGIN: {
-      return { ...state, ...action.data };
-    }
-    case REDEX_DEFER_ACTION: {
-      let { deferredActions } = state;
+    case TypeKeys.REDEX_DEFER_ACTION: {
+      const topic = action.data.topic;
+      const { deferredActions } = state;
 
-      deferredActions = [...deferredActions, action.data];
+      const actions = deferredActions[topic] || [];
 
-      return { ...state, deferredActions };
+      return R.assocPath(["deferredActions", topic], actions, state);
     }
-    case REDEX_CONNECT: {
-      return { ...state, channel: action.data };
+    case TypeKeys.REDEX_CHANNEL_CONNECT_SUCCESS: {
+      const topic = action.data.topic;
+      return R.assocPath(["deferredActions", topic], [], state);
     }
     default: {
       return state;

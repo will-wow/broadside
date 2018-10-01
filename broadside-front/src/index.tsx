@@ -14,7 +14,6 @@ const composeEnhancers = composeWithDevTools({});
 const middleware = [
   redexMiddleware({
     socketEndpoint: "ws://localhost:4000/socket",
-    tokenEndpoint: "http://localhost:4000/api/users"
   })
 ];
 

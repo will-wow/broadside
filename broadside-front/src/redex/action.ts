@@ -10,23 +10,46 @@ export interface ChannelAction<T = any> extends t<T> {
   redex: "channelAction";
 }
 
-export const channelAction = <T = any>(topic: string, type: string) => (
-  data?: T
-): ChannelAction<T> => ({
-  data,
-  redex: "channelAction",
-  topic,
-  type
-});
+export function channelAction<T extends ChannelAction>(
+  type: T["type"],
+  topic: T["topic"]
+): (data?: T["data"]) => T;
+export function channelAction<T extends ChannelAction>(
+  type: T["type"]
+): (topic: T["topic"], data?: T["data"]) => T;
+export function channelAction<T extends ChannelAction>(
+  type: T["type"],
+  topic?: T["topic"]
+) {
+  if (topic) {
+    return (data: T["data"]) => ({
+      data,
+      redex: "channelAction",
+      topic,
+      type
+    });
+  }
 
-export const withData = <T>(type: string) => (data: T): t => ({
-  data,
-  type
-});
+  return (topic: T["topic"], data: T["data"]) => ({
+    data,
+    redex: "channelAction",
+    topic,
+    type
+  });
+}
 
-export const noData = (type: string) => (): t => ({
-  type
-});
+export const withData = <T extends t>(type: T["type"]) => (
+  data: T["data"]
+): T =>
+  ({
+    data,
+    type
+  } as T);
+
+export const noData = <T extends t>(type: T["type"]) => (): T =>
+  ({
+    type
+  } as T);
 
 export const isChannelAction = (
   action: t | ChannelAction

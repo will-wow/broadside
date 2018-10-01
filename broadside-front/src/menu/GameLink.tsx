@@ -3,11 +3,11 @@ import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 
 import { Store } from "../reducers";
-import { simple } from "../redex/action";
+import { onJoinGame } from "./actions";
 
 interface GameLinkProps {
   game: string;
-  onJoinGame: (data: { game_id: string }) => void;
+  onJoinGame: typeof onJoinGame;
 }
 
 class GameLink extends React.Component<GameLinkProps> {
@@ -19,7 +19,7 @@ class GameLink extends React.Component<GameLinkProps> {
 
   private joinGame = () => {
     const { game, onJoinGame } = this.props;
-    onJoinGame({ game_id: game });
+    onJoinGame({ gameId: game });
   };
 }
 
@@ -28,7 +28,7 @@ export const mapStateToProps = (_: Store) => ({});
 export const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      onJoinGame: simple("join_game")
+      onJoinGame
     },
     dispatch
   );

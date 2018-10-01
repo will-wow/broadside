@@ -12,7 +12,7 @@ defmodule Broadside.Application do
       supervisor(BroadsideWeb.Endpoint, []),
       BroadsideWeb.Presence,
       # {Broadside.Games.FrameInterval,
-      #  on_tick: &BroadsideWeb.StoreChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
+      #  on_tick: &BroadsideWeb.GameChannel.broadcast_frame/0, name: Broadside.Games.FrameInterval}
 
       {Registry, keys: :unique, name: Broadside.Registry},
       Broadside.Games.GameSupervisor
