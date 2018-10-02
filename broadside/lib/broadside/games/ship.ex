@@ -16,7 +16,8 @@ defmodule Broadside.Games.Ship do
   @spec new(user_id :: String.t()) :: t
   def new(user_id) do
     %Ship{
-      id: user_id
+      id: user_id,
+      position: Position.random_start()
     }
   end
 end

@@ -10,13 +10,15 @@ export interface BulletData {
 
 export interface BulletProps {
   fps?: number;
+  maxX?: number;
+  maxY?: number;
   bullet: BulletData;
 }
 
 const Bullet = styled("div").attrs<BulletProps>({
-  style: ({ fps, bullet: { position } }: BulletProps) => {
+  style: ({ fps, maxX, maxY, bullet: { position } }: BulletProps) => {
     return {
-      transform: Position.translate(position),
+      transform: maxX && maxY && Position.translate(maxX, maxY, position),
       transition: fps ? `${1 / fps}s linear` : "none"
     };
   }

@@ -17,18 +17,29 @@ defmodule Broadside.Games.Position do
 
   @fps Constants.get(:fps)
   @max_speed Constants.get(:max_speed)
+  @max_x Constants.get(:max_x)
+  @max_y Constants.get(:max_y)
 
   @move_deltas %{
     heading: 45,
     velocity: 10
   }
 
+  @spec random_start() :: t
+  def random_start() do
+    %Position{
+      heading: Enum.random(0..359),
+      x: Enum.random(0..@max_x),
+      y: Enum.random(0..@max_y)
+    }
+  end
+
   def constrain_position(%Position{heading: heading, velocity: velocity, x: x, y: y}) do
     %Position{
       heading: heading,
       velocity: Utils.clamp(velocity, -@max_speed, @max_speed),
-      x: Utils.clamp(x, 0, 1000),
-      y: Utils.clamp(y, 0, 1000)
+      x: Utils.clamp(x, 0, @max_x),
+      y: Utils.clamp(y, 0, @max_y)
     }
   end
 

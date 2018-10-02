@@ -16,15 +16,22 @@ export interface ShipData {
 
 export interface ShipProps {
   fps?: number;
+  maxX?: number;
+  maxY?: number;
   ship: ShipData;
 }
 
 const Ship = styled("div").attrs<ShipProps>({
-  style: ({ fps, ship: { maxSpeed, position } }: ShipProps) => {
+  style: ({ fps, maxX, maxY, ship: { maxSpeed, position } }: ShipProps) => {
     const sprite = sailSprite(maxSpeed, position.velocity);
     return {
       backgroundImage: `url(${sprite})`,
-      transform: `${Position.translate(position)} ${Position.rotate(position)}`,
+      transform:
+        maxX &&
+        maxY &&
+        `${Position.translate(maxX, maxY, position)} ${Position.rotate(
+          position
+        )}`,
       transition: fps ? `${1 / fps}s linear` : "none"
     };
   }
@@ -34,6 +41,7 @@ const Ship = styled("div").attrs<ShipProps>({
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+  position: absolute;
 `;
 
 const sailSprite = (maxSpeed: number | undefined, speed: number) => {

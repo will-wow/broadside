@@ -2,12 +2,17 @@ defmodule BroadsideWeb.GameChannel do
   use BroadsideWeb, :channel
 
   alias Broadside.Games.Action
+  alias Broadside.Games.Constants
   alias Broadside.Games.Game
   alias Broadside.Games.GameSupervisor
-  alias BroadsideWeb.GameView
   alias BroadsideWeb.Endpoint
+  alias BroadsideWeb.GameView
+  alias Redex.Transform
 
   @type socket :: Phoenix.Socket.t()
+  @constants [:fps, :max_x, :max_y]
+             |> Constants.get()
+             |> Transform.to_json()
 
   def join("game:" <> game_id, _payload, socket) do
     case socket.assigns.user_id do
@@ -44,6 +49,7 @@ defmodule BroadsideWeb.GameChannel do
   end
 
   def handle_info({:after_join, game}, socket) do
+    push(socket, "constants", @constants)
     broadcast_game_state(socket, game)
 
     {:noreply, socket}

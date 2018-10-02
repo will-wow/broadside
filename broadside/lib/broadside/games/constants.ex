@@ -1,9 +1,18 @@
 defmodule Broadside.Games.Constants do
-  @fps 10
-  @milliseconds_per_frame round(1000 / @fps)
-  @max_speed 60
+  @constants %{
+    fps: 10,
+    ms_per_frame: round(1000 / 10),
+    max_speed: 60,
+    max_x: 1000,
+    max_y: 1000
+  }
 
-  def get(:fps), do: @fps
-  def get(:ms_per_frame), do: @milliseconds_per_frame
-  def get(:max_speed), do: @max_speed
+  @spec get(atom | [atom]) :: any
+  def get(attribute) when is_atom(attribute) do
+    @constants[attribute]
+  end
+
+  def get(attributes) when is_list(attributes) do
+    Map.take(@constants, attributes)
+  end
 end

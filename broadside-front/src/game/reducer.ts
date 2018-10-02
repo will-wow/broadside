@@ -1,5 +1,5 @@
 import * as MenuActions from "../menu/actions";
-import * as GameActions from "../game/actions";
+import * as GameActions from "./actions";
 import { Action } from "../actions";
 
 import { BulletData } from "./Bullet";
@@ -7,7 +7,6 @@ import { ShipData } from "./Ship";
 
 export interface t {
   gameId?: string;
-  fps?: number;
   ships: ShipData[];
   bullets: BulletData[];
 }

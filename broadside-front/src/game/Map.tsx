@@ -15,6 +15,8 @@ interface MapProps {
   gameId: string;
   bullets: BulletData[];
   fps: number;
+  maxX: number;
+  maxY: number;
   ships: ShipData[];
   onKeyChange: typeof onKeyChange;
   onChannelConnect: typeof onChannelConnect;
@@ -46,12 +48,20 @@ class Map extends React.Component<MapProps> {
   };
 
   render() {
-    const { fps, ships, bullets } = this.props;
+    const { fps, maxX, maxY, ships, bullets } = this.props;
     return (
       <MapBackground>
-        {ships.map(ship => <Ship fps={fps} key={ship.id} ship={ship} />)}
+        {ships.map(ship => (
+          <Ship key={ship.id} fps={fps} maxX={maxX} maxY={maxY} ship={ship} />
+        ))}
         {bullets.map(bullet => (
-          <Bullet key={bullet.id} fps={fps} bullet={bullet} />
+          <Bullet
+            key={bullet.id}
+            fps={fps}
+            maxX={maxX}
+            maxY={maxY}
+            bullet={bullet}
+          />
         ))}
       </MapBackground>
     );
@@ -67,8 +77,10 @@ const MapBackground = styled.div`
 export const mapStateToProps = (state: Store) => {
   return {
     bullets: state.game.bullets,
-    fps: state.game.fps,
+    fps: state.constants.fps,
     gameId: state.game.gameId,
+    maxX: state.constants.maxX,
+    maxY: state.constants.maxY,
     ships: GameSelectors.getShips(state)
   };
 };

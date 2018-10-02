@@ -21,7 +21,7 @@ defmodule Broadside.Games.UserState do
 
   def new(user_id) do
     %UserState{
-      ship: %Ship{id: user_id}
+      ship: Ship.new(user_id)
     }
   end
 
