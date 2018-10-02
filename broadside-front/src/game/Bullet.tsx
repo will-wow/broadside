@@ -27,6 +27,7 @@ const Bullet = styled("div").attrs<BulletProps>({
   height: 10px;
   background-color: gray;
   border-radius: 50;
+  position: absolute;
 `;
 
 export default Bullet;

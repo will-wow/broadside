@@ -33,6 +33,7 @@ defmodule Broadside.Games.UserState do
     struct!(user, keys_down: keys_down)
   end
 
+  @spec frame(t) :: t
   def frame(
         user = %UserState{
           keys_down: keys_down,

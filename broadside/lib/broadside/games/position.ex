@@ -73,4 +73,17 @@ defmodule Broadside.Games.Position do
       delta -> change(position, delta)
     end
   end
+
+  @spec perpendicular(t, :left | :right, number) :: t
+  def perpendicular(position = %Position{x: x, y: y, heading: heading}, side, velocity) do
+    heading_delta =
+      case side do
+        :left -> -90
+        :right -> 90
+      end
+
+    new_heading = heading + heading_delta
+
+    %Position{x: x, y: y, heading: new_heading, velocity: velocity}
+  end
 end

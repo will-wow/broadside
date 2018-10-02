@@ -11,8 +11,8 @@ defmodule BroadsideWeb.GameChannel do
 
   @type socket :: Phoenix.Socket.t()
   @constants [:fps, :max_x, :max_y]
-             |> Constants.get()
-             |> Transform.to_json()
+  |> Constants.get()
+  |> Transform.to_json()
 
   def join("game:" <> game_id, _payload, socket) do
     case socket.assigns.user_id do
