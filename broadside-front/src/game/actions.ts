@@ -1,10 +1,22 @@
 import * as RedexAction from "../redex/action";
+import { BulletData } from "./Bullet";
+import { ShipData } from "./Ship";
 
 export enum TypeKeys {
+  GAME_STATE = "game:state",
   KEY_CHANGE = "game:key_change"
 }
 
-export type Action = KeyChangeAction;
+export type Action = GameStateAction | KeyChangeAction;
+
+interface GameStateAction {
+  type: TypeKeys.GAME_STATE;
+  data: {
+    fps?: number;
+    ships: ShipData[];
+    bullets: BulletData[];
+  };
+}
 
 interface KeyChangeAction extends RedexAction.ChannelAction {
   type: TypeKeys.KEY_CHANGE;
@@ -15,6 +27,7 @@ interface KeyChangeAction extends RedexAction.ChannelAction {
 }
 
 export const eventsToActions = {
+  game_state: TypeKeys.GAME_STATE,
   key_change: TypeKeys.KEY_CHANGE
 };
 

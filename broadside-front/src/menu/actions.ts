@@ -38,7 +38,7 @@ interface GameStartedAction {
   };
 }
 
-interface JoinGameAction extends RedexAction.ChannelAction {
+interface JoinGameAction {
   type: TypeKeys.JOIN_GAME;
   data: {
     gameId: string;
@@ -65,9 +65,8 @@ export const eventsToActions = {
   new_game_created: TypeKeys.NEW_GAME_SUCCESS
 };
 
-export const onJoinGame = RedexAction.channelAction<JoinGameAction>(
-  TypeKeys.JOIN_GAME,
-  "open_games:lobby"
+export const onJoinGame = RedexAction.withData<JoinGameAction>(
+  TypeKeys.JOIN_GAME
 );
 
 export const onNewGame = RedexAction.channelAction<NewGameAction>(

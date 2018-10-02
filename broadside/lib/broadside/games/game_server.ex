@@ -42,7 +42,7 @@ defmodule Broadside.Games.GameServer do
         _from,
         state = %Game{}
       ) do
-    Game.update(state, action)
+    state = Game.update(state, action)
 
     {:reply, state, state}
   end
