@@ -2,6 +2,7 @@ import { TypeKeys, Action } from "./actions";
 
 export interface t {
   games: string[];
+  userId?: string;
 }
 
 const initialState = {
@@ -10,6 +11,9 @@ const initialState = {
 
 export const reducer = (state: t = initialState, action: Action): t => {
   switch (action.type) {
+    case TypeKeys.LOGIN: {
+      return { ...state, userId: action.data.userId };
+    }
     case TypeKeys.GAME_LIST: {
       return { ...state, games: action.data.games };
     }

@@ -5,6 +5,7 @@ export enum TypeKeys {
   GAME_LIST = "menu:game_list",
   GAME_STARTED = "menu:game_started",
   JOIN_GAME = "menu:join_game",
+  LOGIN = "menu:login",
   NEW_GAME = "menu:new_game",
   NEW_GAME_SUCCESS = "menu:new_game:success"
 }
@@ -14,6 +15,7 @@ export type Action =
   | GameListAction
   | GameStartedAction
   | JoinGameAction
+  | LoginAction
   | NewGameAction
   | NewGameActionSuccess;
 
@@ -28,6 +30,13 @@ interface GameListAction {
   type: TypeKeys.GAME_LIST;
   data: {
     games: string[];
+  };
+}
+
+interface LoginAction {
+  type: TypeKeys.LOGIN;
+  data: {
+    userId: string;
   };
 }
 
@@ -61,6 +70,7 @@ export const eventsToActions = {
   game_list: TypeKeys.GAME_LIST,
   game_started: TypeKeys.GAME_STARTED,
   join_game: TypeKeys.JOIN_GAME,
+  login: TypeKeys.LOGIN,
   new_game: TypeKeys.NEW_GAME,
   new_game_created: TypeKeys.NEW_GAME_SUCCESS
 };

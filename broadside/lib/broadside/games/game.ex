@@ -30,6 +30,11 @@ defmodule Broadside.Games.Game do
     end)
   end
 
+  @spec player?(t, Id.t()) :: boolean
+  def player?(game, user_id) do
+    Map.has_key?(game.users, user_id)
+  end
+
   @spec update(t, Action.t()) :: t
   def update(
         game = %Game{users: users},
@@ -41,11 +46,17 @@ defmodule Broadside.Games.Game do
 
   def update(
         game = %Game{},
-        action = %Action.KeyChange{}
+        action = %Action.KeyChange{user_id: user_id}
       ) do
-    game
-    |> update_shot(action)
-    |> update_keys_down(action)
+    case player?(game, user_id) do
+      true ->
+        game
+        |> update_shot(action)
+        |> update_keys_down(action)
+
+      false ->
+        game
+    end
   end
 
   def update(

@@ -27,10 +27,15 @@ defmodule BroadsideWeb.OpenGamesChannel do
   end
 
   def handle_info(:after_join, socket) do
+    user_id = socket.assigns.user_id
     game_ids = GameSupervisor.all_game_ids()
-    data = Transform.to_json(%{games: game_ids})
 
-    push(socket, "game_list", data)
+    user_data = Transform.to_json(%{user_id: user_id})
+    game_data = Transform.to_json(%{games: game_ids})
+
+    push(socket, "login", user_data)
+    push(socket, "game_list", game_data)
+
     {:noreply, socket}
   end
 end

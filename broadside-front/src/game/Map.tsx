@@ -18,18 +18,31 @@ interface MapProps {
   maxX: number;
   maxY: number;
   ships: ShipData[];
+  isPlaying: boolean;
   onKeyChange: typeof onKeyChange;
   onChannelConnect: typeof onChannelConnect;
 }
 
 class Map extends React.Component<MapProps> {
   handleKeyDown = ({ key }: KeyboardEvent): void => {
-    const { onKeyChange, gameId } = this.props;
+    const { onKeyChange, gameId, isPlaying } = this.props;
+
+    // tslint:disable
+    console.log(isPlaying);
+    if (!isPlaying) {
+      return;
+    }
+
     onKeyChange(`game:${gameId}`, { key, event: "down" });
   };
 
   handleKeyUp = ({ key }: KeyboardEvent): void => {
-    const { onKeyChange, gameId } = this.props;
+    const { onKeyChange, gameId, isPlaying } = this.props;
+
+    if (!isPlaying) {
+      return;
+    }
+
     onKeyChange(`game:${gameId}`, { key, event: "up" });
   };
 
@@ -48,9 +61,9 @@ class Map extends React.Component<MapProps> {
   };
 
   render() {
-    const { fps, maxX, maxY, ships, bullets } = this.props;
+    const { fps, maxX, maxY, ships, bullets, isPlaying } = this.props;
     return (
-      <MapBackground>
+      <MapBackground isPlaying={isPlaying}>
         {ships.map(ship => (
           <Ship key={ship.id} fps={fps} maxX={maxX} maxY={maxY} ship={ship} />
         ))}
@@ -72,6 +85,21 @@ const MapBackground = styled.div`
   width: 100vw;
   height: 100vh;
   background: blue;
+  position: relative;
+  ${({ isPlaying }: { isPlaying: boolean }) =>
+    !isPlaying &&
+    `
+    &:after {
+      content: " ";
+      background: white;
+      opacity: 0.5;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0
+    }`}
+  }
 `;
 
 export const mapStateToProps = (state: Store) => {
@@ -79,6 +107,7 @@ export const mapStateToProps = (state: Store) => {
     bullets: state.game.bullets,
     fps: state.constants.fps,
     gameId: state.game.gameId,
+    isPlaying: GameSelectors.isPlaying(state),
     maxX: state.constants.maxX,
     maxY: state.constants.maxY,
     ships: GameSelectors.getShips(state)
