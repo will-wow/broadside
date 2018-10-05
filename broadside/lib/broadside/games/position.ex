@@ -8,12 +8,13 @@ defmodule Broadside.Games.Position do
           x: number,
           y: number,
           velocity: number,
-          heading: number
+          heading: number,
+          radius: number
         }
 
   @type possible_changes :: %{optional(String.t()) => Change.t()}
 
-  defstruct x: 0.0, y: 0.0, velocity: 0.0, heading: 0.0
+  defstruct radius: 1.0, x: 0.0, y: 0.0, velocity: 0.0, heading: 0.0
 
   @fps Constants.get(:fps)
   @max_speed Constants.get(:max_speed)
@@ -25,21 +26,24 @@ defmodule Broadside.Games.Position do
     velocity: 10
   }
 
-  @spec random_start() :: t
-  def random_start() do
+  @spec random_start(keyword) :: t
+  def random_start(args \\ []) do
     %Position{
       heading: Enum.random(0..359),
       x: Enum.random(0..@max_x),
       y: Enum.random(0..@max_y)
     }
+    |> struct!(args)
   end
 
-  def constrain_position(%Position{heading: heading, velocity: velocity, x: x, y: y}) do
+  @spec constrain_position(t) :: t
+  def constrain_position(position = %Position{heading: heading, velocity: velocity, x: x, y: y}) do
     %Position{
-      heading: heading,
-      velocity: Utils.clamp(velocity, -@max_speed, @max_speed),
-      x: Utils.clamp(x, 0, @max_x),
-      y: Utils.clamp(y, 0, @max_y)
+      position
+      | heading: heading,
+        velocity: Utils.clamp(velocity, -@max_speed, @max_speed),
+        x: Utils.clamp(x, 0, @max_x),
+        y: Utils.clamp(y, 0, @max_y)
     }
   end
 
@@ -75,7 +79,7 @@ defmodule Broadside.Games.Position do
   end
 
   @spec perpendicular(t, :left | :right, number) :: t
-  def perpendicular(position = %Position{x: x, y: y, heading: heading}, side, velocity) do
+  def perpendicular(%Position{x: x, y: y, heading: heading}, side, velocity) do
     heading_delta =
       case side do
         :left -> -90
@@ -85,5 +89,15 @@ defmodule Broadside.Games.Position do
     new_heading = heading + heading_delta
 
     %Position{x: x, y: y, heading: new_heading, velocity: velocity}
+  end
+
+  @spec collision?(t, t) :: boolean
+  def collision?(position1 = %Position{}, position2 = %Position{}) do
+    distance(position1, position2) <= position1.radius + position2.radius
+  end
+
+  @spec distance(t, t) :: float
+  def distance(position1 = %Position{}, position2 = %Position{}) do
+    :math.sqrt(:math.pow(position1.x - position2.x, 2) + :math.pow(position1.y - position2.y, 2))
   end
 end

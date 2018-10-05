@@ -6,9 +6,11 @@ defmodule Broadside.Games.UserState do
   alias Broadside.Games.Position.Change
 
   @type t :: %__MODULE__{
+          id: Id.t(),
           ship: Ship.t(),
           keys_down: KeysDown.t()
         }
+  @type event :: :up | :down
 
   @keys_to_changes %{
     "a" => %Change{attribute: :heading, direction: -1},
@@ -17,14 +19,16 @@ defmodule Broadside.Games.UserState do
     "w" => %Change{attribute: :velocity, direction: 1}
   }
 
-  defstruct ship: %Ship{}, keys_down: %KeysDown{}
+  defstruct [:id, ship: %Ship{}, keys_down: %KeysDown{}]
 
   def new(user_id) do
     %UserState{
+      id: user_id,
       ship: Ship.new(user_id)
     }
   end
 
+  @spec update_keys_down(t, String.t(), event) :: t
   def update_keys_down(user, key, event) do
     keys_down =
       user.keys_down
@@ -43,6 +47,17 @@ defmodule Broadside.Games.UserState do
     ship = update_ship_from_keys(ship, keys_down)
 
     struct!(user, ship: ship)
+  end
+
+  @spec hit(t) :: {:dead, t} | {:alive, t}
+  def hit(user = %UserState{ship: ship}) do
+    case Ship.hit(ship) do
+      {:dead, _ship} ->
+        {:dead, user}
+
+      {:alive, damaged_ship} ->
+        {:alive, struct!(user, ship: damaged_ship)}
+    end
   end
 
   defp update_ship_from_keys(ship, keys_down) do

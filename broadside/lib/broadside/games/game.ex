@@ -9,6 +9,7 @@ defmodule Broadside.Games.Game do
   alias Broadside.Id
 
   @fps Constants.get(:fps)
+  @bullet_range 100
 
   @type t :: %Game{
           id: Id.t(),
@@ -20,6 +21,14 @@ defmodule Broadside.Games.Game do
         }
 
   defstruct [:id, fps: @fps, users: %{}, bullets: []]
+
+  @spec ships(game :: t) :: [Ship.t()]
+  def ships(%Game{users: users}) do
+    users
+    |> Enum.map(fn {_user_id, user} ->
+      user.ship
+    end)
+  end
 
   @spec update(t, Action.t()) :: t
   def update(
@@ -44,16 +53,9 @@ defmodule Broadside.Games.Game do
         %Action.Frame{}
       ) do
     game
-    |> users_frame()
-    |> bullets_frame()
-  end
-
-  @spec ships(game :: t) :: [Ship.t()]
-  def ships(%Game{users: users}) do
-    users
-    |> Enum.map(fn {_user_id, user} ->
-      user.ship
-    end)
+    |> frame_users()
+    |> frame_bullets()
+    |> frame_collisions()
   end
 
   defp update_keys_down(
@@ -83,7 +85,7 @@ defmodule Broadside.Games.Game do
     game
   end
 
-  defp users_frame(game = %Game{users: users}) do
+  defp frame_users(game = %Game{users: users}) do
     users =
       users
       |> Enum.map(fn {user_id, user} ->
@@ -94,7 +96,8 @@ defmodule Broadside.Games.Game do
     struct!(game, users: users)
   end
 
-  defp bullets_frame(game = %Game{bullets: bullets}) do
+  @spec frame_bullets(t) :: t
+  defp frame_bullets(game = %Game{bullets: bullets}) do
     bullets =
       bullets
       |> Enum.map(fn bullet ->
@@ -102,6 +105,31 @@ defmodule Broadside.Games.Game do
       end)
 
     struct!(game, bullets: bullets)
+  end
+
+  @spec frame_collisions(t) :: t
+  defp frame_collisions(game = %Game{bullets: bullets, users: users}) do
+    bullets
+    |> Enum.reduce(game, fn bullet, game ->
+      bullet_user_id = bullet.user_id
+
+      hit_user =
+        Enum.find(users, fn
+          {^bullet_user_id, _} ->
+            false
+
+          {_user_id, user} ->
+            Position.collision?(bullet.position, user.ship.position)
+        end)
+
+      case hit_user do
+        nil ->
+          check_bullet_distance(game, bullet)
+
+        {_, hit_user} ->
+          handle_hit(game, bullet, hit_user)
+      end
+    end)
   end
 
   @spec add_bullet(Game.t(), Id.t()) :: Game.t()
@@ -119,5 +147,44 @@ defmodule Broadside.Games.Game do
       |> Enum.concat(bullets)
 
     struct!(game, bullets: bullets)
+  end
+
+  @spec handle_hit(t, Bullet.t(), UserState.t()) :: t
+  defp handle_hit(game, bullet, user) do
+    game
+    |> handle_hit_on_user(user)
+    |> Map.update!(:bullets, fn bullets ->
+      List.delete(bullets, bullet)
+    end)
+  end
+
+  @spec handle_hit_on_user(t, UserState.t()) :: t
+  defp handle_hit_on_user(game, user) do
+    case UserState.hit(user) do
+      {:dead, _user} ->
+        game
+        |> Map.update!(:users, fn users ->
+          Map.delete(users, user.id)
+        end)
+
+      {:alive, damaged_user} ->
+        game
+        |> Map.update!(:users, fn users ->
+          Map.put(users, user.id, damaged_user)
+        end)
+    end
+  end
+
+  @spec check_bullet_distance(t, Bullet.t()) :: t
+  defp check_bullet_distance(game, bullet) do
+    case Position.distance(bullet.position, bullet.starting_position) > @bullet_range do
+      true ->
+        Map.update!(game, :bullets, fn bullets ->
+          List.delete(bullets, bullet)
+        end)
+
+      false ->
+        game
+    end
   end
 end

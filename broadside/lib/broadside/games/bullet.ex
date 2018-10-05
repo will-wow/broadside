@@ -14,6 +14,10 @@ defmodule Broadside.Games.Bullet do
 
   @spec new(Id.t(), Position.t()) :: t
   def new(user_id, starting_position) do
+    starting_position =
+      starting_position
+      |> struct!(radius: 5)
+
     %Bullet{
       id: Id.random(8),
       user_id: user_id,
