@@ -9,7 +9,8 @@ defmodule Broadside.Games.Game do
   alias Broadside.Id
 
   @fps Constants.get(:fps)
-  @bullet_range 100
+  @bullet_speed Constants.get(:bullet_speed)
+  @bullet_range @bullet_speed / 2
 
   @type t :: %Game{
           id: Id.t(),
@@ -151,8 +152,18 @@ defmodule Broadside.Games.Game do
 
     bullets =
       [
-        Position.perpendicular(ship_position, :left, 100),
-        Position.perpendicular(ship_position, :right, 100)
+        Position.perpendicular(
+          ship_position,
+          :left,
+          velocity: @bullet_speed,
+          max_velocity: @bullet_speed
+        ),
+        Position.perpendicular(
+          ship_position,
+          :right,
+          velocity: @bullet_speed,
+          max_velocity: @bullet_speed
+        )
       ]
       |> Enum.map(&Bullet.new(user_id, &1))
       |> Enum.concat(bullets)

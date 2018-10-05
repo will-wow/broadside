@@ -45,12 +45,9 @@ defmodule Broadside.Games.Action do
     defstruct [:user_id]
   end
 
-  # TODO:
   defmodule Event do
     @spec define(atom, keyword, keyword) :: any
     defmacro define(name, types, defaults \\ []) do
-      IO.inspect(name)
-
       fields =
         Enum.map(types, fn {name, _} ->
           {name, defaults[name]}

@@ -8,16 +8,16 @@ defmodule Broadside.Games.Position do
           x: number,
           y: number,
           velocity: number,
+          max_velocity: number,
           heading: number,
           radius: number
         }
 
   @type possible_changes :: %{optional(String.t()) => Change.t()}
 
-  defstruct radius: 1.0, x: 0.0, y: 0.0, velocity: 0.0, heading: 0.0
+  defstruct radius: 1.0, x: 0.0, y: 0.0, velocity: 0.0, max_velocity: 0.0, heading: 0.0
 
   @fps Constants.get(:fps)
-  @max_speed Constants.get(:max_speed)
   @max_x Constants.get(:max_x)
   @max_y Constants.get(:max_y)
 
@@ -37,11 +37,24 @@ defmodule Broadside.Games.Position do
   end
 
   @spec constrain_position(t) :: t
-  def constrain_position(position = %Position{heading: heading, velocity: velocity, x: x, y: y}) do
+  def constrain_position(
+        position = %Position{
+          heading: heading,
+          velocity: velocity,
+          x: x,
+          y: y,
+          max_velocity: max_velocity
+        }
+      ) do
     %Position{
       position
       | heading: heading,
-        velocity: Utils.clamp(velocity, -@max_speed, @max_speed),
+        velocity:
+          Utils.clamp(
+            velocity,
+            -max_velocity,
+            max_velocity
+          ),
         x: Utils.clamp(x, 0, @max_x),
         y: Utils.clamp(y, 0, @max_y)
     }
@@ -78,8 +91,8 @@ defmodule Broadside.Games.Position do
     end
   end
 
-  @spec perpendicular(t, :left | :right, number) :: t
-  def perpendicular(%Position{x: x, y: y, heading: heading}, side, velocity) do
+  @spec perpendicular(t, :left | :right, keyword) :: t
+  def perpendicular(%Position{x: x, y: y, heading: heading}, side, args) do
     heading_delta =
       case side do
         :left -> -90
@@ -88,7 +101,12 @@ defmodule Broadside.Games.Position do
 
     new_heading = heading + heading_delta
 
-    %Position{x: x, y: y, heading: new_heading, velocity: velocity}
+    %Position{
+      x: x,
+      y: y,
+      heading: new_heading
+    }
+    |> struct!(args)
   end
 
   @spec collision?(t, t) :: boolean

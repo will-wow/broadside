@@ -10,7 +10,6 @@ import threeSailSprite from "../img/three-sail.png";
 
 export interface ShipData {
   id: string;
-  maxSpeed: number;
   position: Position.t;
 }
 
@@ -22,8 +21,8 @@ export interface ShipProps {
 }
 
 const Ship = styled("div").attrs<ShipProps>({
-  style: ({ fps, maxX, maxY, ship: { maxSpeed, position } }: ShipProps) => {
-    const sprite = sailSprite(maxSpeed, position.velocity);
+  style: ({ fps, maxX, maxY, ship: { position } }: ShipProps) => {
+    const sprite = sailSprite(position.maxVelocity, position.velocity);
     return {
       backgroundImage: `url(${sprite})`,
       transform:
@@ -44,17 +43,17 @@ const Ship = styled("div").attrs<ShipProps>({
   position: absolute;
 `;
 
-const sailSprite = (maxSpeed: number | undefined, speed: number) => {
+const sailSprite = (maxVelocity: number | undefined, speed: number) => {
   const velocity = Math.abs(speed);
-  if (!maxSpeed || velocity === 0) {
+  if (!maxVelocity || velocity === 0) {
     return noSailSprite;
   }
 
-  if (velocity < maxSpeed / 2) {
+  if (velocity < maxVelocity / 2) {
     return oneSailSprite;
   }
 
-  if (velocity < maxSpeed) {
+  if (velocity < maxVelocity) {
     return twoSailSprite;
   }
 

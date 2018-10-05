@@ -1,8 +1,10 @@
 defmodule Broadside.Games.Constants do
   @constants %{
+    bullet_speed: 200,
     fps: 10,
     ms_per_frame: round(1000 / 10),
-    max_speed: 60.0,
+    max_health: 3,
+    max_velocity: 60,
     max_x: 1000,
     max_y: 1000
   }

@@ -3,22 +3,26 @@ defmodule Broadside.Games.Ship do
   alias Broadside.Games.Position
   alias Broadside.Games.Constants
 
-  @max_speed Constants.get(:max_speed)
+  @max_velocity Constants.get(:max_velocity)
+  @max_health Constants.get(:max_health)
 
   @type t :: %Ship{
           id: String.t(),
-          max_speed: number,
           position: Position.t(),
           health: number
         }
 
-  defstruct [:id, health: 10.0, position: %Position{}, max_speed: @max_speed]
+  defstruct [:id, health: @max_health, position: %Position{}]
 
   @spec new(user_id :: String.t()) :: t
   def new(user_id) do
     %Ship{
       id: user_id,
-      position: Position.random_start(radius: 10)
+      position:
+        Position.random_start(
+          radius: 10,
+          max_velocity: @max_velocity
+        )
     }
   end
 

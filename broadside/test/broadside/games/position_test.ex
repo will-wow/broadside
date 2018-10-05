@@ -5,7 +5,7 @@ defmodule Broadside.Games.PositionTest do
   alias Broadside.Games.Position
   alias Broadside.Games.Position.Change
 
-  @max_speed Constants.get(:max_speed)
+  @max_velocity Constants.get(:max_velocity)
 
   test "constrain position" do
     position = %Position{
@@ -17,7 +17,8 @@ defmodule Broadside.Games.PositionTest do
 
     assert Position.constrain_position(position) == %Position{
              position
-             | velocity: @max_speed,
+             | velocity: @max_velocity,
+               max_velocity: @max_velocity,
                x: 0,
                y: 1000
            }
