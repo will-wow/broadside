@@ -16,6 +16,7 @@ defmodule BroadsideWeb.GameView do
       id: id,
       fps: fps,
       bullets: bullets,
+      score: Game.score(game),
       ships: Game.ships(game)
     }
     |> Transform.to_json()

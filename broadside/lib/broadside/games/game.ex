@@ -3,8 +3,9 @@ defmodule Broadside.Games.Game do
   alias Broadside.Games.Action
   alias Broadside.Games.Bullet
   alias Broadside.Games.Constants
-  alias Broadside.Games.Ship
   alias Broadside.Games.Position
+  alias Broadside.Games.Score
+  alias Broadside.Games.Ship
   alias Broadside.Games.UserState
   alias Broadside.Id
 
@@ -22,6 +23,15 @@ defmodule Broadside.Games.Game do
         }
 
   defstruct [:id, fps: @fps, users: %{}, bullets: []]
+
+  @spec score(game :: t) :: map
+  def score(%Game{users: users}) do
+    users
+    |> Enum.map(fn {user_id, user} ->
+      {user_id, user.wins}
+    end)
+    |> Enum.into(%{})
+  end
 
   @spec ships(game :: t) :: [Ship.t()]
   def ships(%Game{users: users}) do
@@ -174,25 +184,27 @@ defmodule Broadside.Games.Game do
   @spec handle_hit(t, Bullet.t(), UserState.t()) :: t
   defp handle_hit(game, bullet, user) do
     game
-    |> handle_hit_on_user(user)
+    |> handle_hit_on_user(bullet, user)
     |> Map.update!(:bullets, fn bullets ->
       List.delete(bullets, bullet)
     end)
   end
 
-  @spec handle_hit_on_user(t, UserState.t()) :: t
-  defp handle_hit_on_user(game, user) do
-    case UserState.hit(user) do
+  @spec handle_hit_on_user(t, Bullet.t(), UserState.t()) :: t
+  defp handle_hit_on_user(game, bullet, hit_user) do
+    case UserState.hit(hit_user) do
       {:dead, _user} ->
         game
         |> Map.update!(:users, fn users ->
-          Map.delete(users, user.id)
+          users
+          |> Map.update!(bullet.user_id, &UserState.win/1)
+          |> Map.delete(hit_user.id)
         end)
 
       {:alive, damaged_user} ->
         game
         |> Map.update!(:users, fn users ->
-          Map.put(users, user.id, damaged_user)
+          Map.put(users, hit_user.id, damaged_user)
         end)
     end
   end

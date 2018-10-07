@@ -8,7 +8,8 @@ defmodule Broadside.Games.UserState do
   @type t :: %__MODULE__{
           id: Id.t(),
           ship: Ship.t(),
-          keys_down: KeysDown.t()
+          keys_down: KeysDown.t(),
+          wins: integer
         }
   @type event :: :up | :down
 
@@ -19,7 +20,7 @@ defmodule Broadside.Games.UserState do
     "w" => %Change{attribute: :velocity, direction: 1}
   }
 
-  defstruct [:id, ship: %Ship{}, keys_down: %KeysDown{}]
+  defstruct [:id, ship: %Ship{}, keys_down: %KeysDown{}, wins: 0]
 
   def new(user_id) do
     %UserState{
@@ -58,6 +59,14 @@ defmodule Broadside.Games.UserState do
       {:alive, damaged_ship} ->
         {:alive, struct!(user, ship: damaged_ship)}
     end
+  end
+
+  @doc """
+  Record a win
+  """
+  @spec win(t) :: t
+  def win(user = %UserState{}) do
+    Map.update!(user, :wins, &(&1 + 1))
   end
 
   defp update_ship_from_keys(ship, keys_down) do

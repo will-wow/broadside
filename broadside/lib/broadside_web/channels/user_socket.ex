@@ -1,9 +1,9 @@
 defmodule BroadsideWeb.UserSocket do
   use Phoenix.Socket
 
-  @type socket :: Phoenix.Socket.t()
+  alias Broadside.Accounts
 
-  @one_day 1000 * 60 * 60 * 24
+  @type socket :: Phoenix.Socket.t()
 
   ## Channels
   channel "open_games:lobby", BroadsideWeb.OpenGamesChannel
@@ -18,7 +18,7 @@ defmodule BroadsideWeb.UserSocket do
   """
   @spec connect(map, socket) :: {:ok, socket}
   def connect(%{"token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "user", token, max_age: @one_day) do
+    case Accounts.verify_token(socket, token) do
       {:ok, user_id} ->
         {:ok, assign(socket, :user_id, user_id)}
 

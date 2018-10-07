@@ -101,7 +101,7 @@ defmodule Broadside.Games.GameSupervisor do
   end
 
   @spec get_game_state(Id.t()) :: Result.t(Game.t(), atom)
-  defp get_game_state(game_id) do
+  def get_game_state(game_id) do
     game_id
     |> get_child()
     |> Result.map_ok(&GameServer.get_state/1)
