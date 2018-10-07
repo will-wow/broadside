@@ -16,7 +16,7 @@ export interface Store {
 
 const redexReducer = <T>({ initialState, name }: RedexReducerConfig<T>) => (
   state: T = initialState,
-  action: Action.t<any>
+  action: Action.FSA<any>
 ): T => {
   switch (action.type) {
     case `redex:${name}`: {

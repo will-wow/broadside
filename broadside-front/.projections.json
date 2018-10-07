@@ -1,0 +1,9 @@
+{
+  "*.ts": { "alternate": "{dirname}/__test__/{basename}.test.js" },
+  "*.tsx": {
+    "alternate": [
+      "{dirname}/__test__/{basename}.test.tsx",
+      "{dirname}/__test__/{basename}.test.ts"
+    ]
+  }
+}

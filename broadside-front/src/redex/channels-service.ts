@@ -59,16 +59,26 @@ export default class Channels {
     });
   };
 
-  sendMessage = ({ topic, type, data }: Action.ChannelAction) => {
+  sendMessage = ({
+    type,
+    data,
+    redex: {
+      data: { topic, channelEvent }
+    }
+  }: Action.ChannelPushAction<any>) => {
     const { channel, eventAndActions } = this.channels[topic];
 
-    const event = actionToEvent(eventAndActions)(type);
+    // TODO: No actionToEvent here.
+    const event = channelEvent || actionToEvent(eventAndActions)(type);
 
     channel.push(event, data);
   };
 
-  isChannelReady = ({ topic }: Action.ChannelAction): boolean =>
-    Boolean(this.channels[topic]);
+  isChannelReady = ({
+    redex: {
+      data: { topic }
+    }
+  }: Action.ChannelPushAction<any>): boolean => Boolean(this.channels[topic]);
 
   private listen = (channelData: ChannelData) => {
     R.map(({ event, action }) => {

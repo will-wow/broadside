@@ -54,9 +54,10 @@ interface JoinGameAction {
   };
 }
 
-interface NewGameAction extends RedexAction.ChannelAction {
-  type: TypeKeys.NEW_GAME;
-}
+type NewGameAction = RedexAction.ChannelPushAction<
+  undefined,
+  TypeKeys.NEW_GAME
+>;
 
 interface NewGameActionSuccess {
   type: TypeKeys.NEW_GAME_SUCCESS;
@@ -79,7 +80,13 @@ export const onJoinGame = RedexAction.withData<JoinGameAction>(
   TypeKeys.JOIN_GAME
 );
 
-export const onNewGame = RedexAction.channelAction<NewGameAction>(
-  TypeKeys.NEW_GAME,
-  "open_games:lobby"
+// TODO: This is lame.
+export const onNewGame = RedexAction.channelAction<
+  undefined,
+  TypeKeys.NEW_GAME
+>(
+  {
+    topic: "open_games:lobby"
+  },
+  { type: TypeKeys.NEW_GAME, data: undefined }
 );

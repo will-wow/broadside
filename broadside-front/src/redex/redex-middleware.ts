@@ -1,5 +1,5 @@
 import Channels from "./channels-service";
-import { Middleware } from "redux";
+import { Middleware, MiddlewareAPI, Dispatch } from "redux";
 import * as Action from "./action";
 
 import * as RedexActions from "./actions";
@@ -9,24 +9,46 @@ interface RedexConfig {
 }
 
 export default (config: RedexConfig): Middleware => api => next => {
+  return (action: Action.FSA | Action.AnyRedexAction): Action.FSA | null => {
+    if (Action.isRedexAction(action)) {
+      return handleRedexAction(config, api, next, action);
+    }
+
+    return next(action);
+  };
+};
+
+const handleRedexAction = (
+  config: RedexConfig,
+  api: MiddlewareAPI,
+  next: Dispatch,
+  action: Action.AnyRedexAction
+): Action.FSA => {
   const channels = new Channels(config.socketEndpoint, api.dispatch);
 
-  return (action: Action.t | Action.ChannelAction): Action.t | null => {
-    if (action.type === RedexActions.TypeKeys.REDEX_SOCKET_CONNECT) {
-      const data: RedexActions.RedexSocketConnectAction["data"] = action.data;
+  switch (action.redex.type) {
+    case Action.RedexActionType.SocketJoin: {
+      const socketPayload = action.redex.data;
 
-      channels.openSocket(data.token);
+      channels.openSocket(socketPayload);
 
       return next(action);
     }
 
-    if (action.type === RedexActions.TypeKeys.REDEX_CHANNEL_CONNECT) {
-      const data: RedexActions.RedexChannelConnectAction["data"] = action.data;
+    case Action.RedexActionType.ChannelJoin: {
+      const {
+        data,
+        redex: {
+          data: { topic, eventsToActions }
+        }
+      } = action;
 
-      channels.connectToChannel(data.topic, data.eventsToActions);
+      channels.connectToChannel(topic, eventsToActions, data);
+
+      return next(action);
     }
 
-    if (Action.isChannelAction(action)) {
+    case Action.RedexActionType.ChannelPush: {
       if (channels.isChannelReady(action)) {
         // Send the action to the server, and redux.
         channels.sendMessage(action);
@@ -37,6 +59,8 @@ export default (config: RedexConfig): Middleware => api => next => {
       }
     }
 
-    return next(action);
-  };
+    default: {
+      return next(action);
+    }
+  }
 };

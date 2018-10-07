@@ -11,7 +11,7 @@ import * as GameSelectors from "./selectors";
 import { onKeyChange, eventsToActions } from "./actions";
 import { onChannelConnect } from "../redex/actions";
 
-interface MapProps {
+interface GameProps {
   gameId: string;
   bullets: BulletData[];
   fps: number;
@@ -23,12 +23,10 @@ interface MapProps {
   onChannelConnect: typeof onChannelConnect;
 }
 
-class Map extends React.Component<MapProps> {
+class Game extends React.Component<GameProps> {
   handleKeyDown = ({ key }: KeyboardEvent): void => {
     const { onKeyChange, gameId, isPlaying } = this.props;
 
-    // tslint:disable
-    console.log(isPlaying);
     if (!isPlaying) {
       return;
     }
@@ -63,7 +61,8 @@ class Map extends React.Component<MapProps> {
   render() {
     const { fps, maxX, maxY, ships, bullets, isPlaying } = this.props;
     return (
-      <MapBackground isPlaying={isPlaying}>
+      <GameBackground isPlaying={isPlaying}>
+        <ScoreCard />
         {ships.map(ship => (
           <Ship key={ship.id} fps={fps} maxX={maxX} maxY={maxY} ship={ship} />
         ))}
@@ -76,12 +75,12 @@ class Map extends React.Component<MapProps> {
             bullet={bullet}
           />
         ))}
-      </MapBackground>
+      </GameBackground>
     );
   }
 }
 
-const MapBackground = styled.div`
+const GameBackground = styled.div`
   width: 100vw;
   height: 100vh;
   background: blue;
@@ -126,8 +125,8 @@ export const mapDispatchToProps = (dispatch: Dispatch) =>
 const connectedComponent = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Map);
+)(Game);
 
 export default connectedComponent;
 
-export { Map };
+export { Game };

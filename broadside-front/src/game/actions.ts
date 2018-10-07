@@ -20,13 +20,13 @@ interface GameStateAction {
   };
 }
 
-interface KeyChangeAction extends RedexAction.ChannelAction {
-  type: TypeKeys.KEY_CHANGE;
-  data: {
+type KeyChangeAction = RedexAction.ChannelPushAction<
+  {
     event: "down" | "up";
     key: string;
-  };
-}
+  },
+  TypeKeys.KEY_CHANGE
+>;
 
 export const eventsToActions = {
   constants: ConstantsActions.TypeKeys.GET_CONSTANTS_SUCCESS,
@@ -34,6 +34,7 @@ export const eventsToActions = {
   key_change: TypeKeys.KEY_CHANGE
 };
 
+// TODO
 export const onKeyChange = RedexAction.channelAction<KeyChangeAction>(
   TypeKeys.KEY_CHANGE
 );

@@ -8,8 +8,10 @@ export interface t {
   deferredActions: DeferredActions;
 }
 
+type DeferredActionArray = Array<Action.ChannelPushAction<any, any>>;
+
 interface DeferredActions {
-  [topic: string]: Action.ChannelAction[];
+  [topic: string]: DeferredActionArray;
 }
 
 const initialState: t = {
@@ -19,14 +21,19 @@ const initialState: t = {
 export const reducer = (state: t = initialState, action: RedexAction): t => {
   switch (action.type) {
     case TypeKeys.REDEX_DEFER_ACTION: {
-      const topic = action.data.topic;
+      const deferredAction = action.data;
+      const topic = deferredAction.redex.data.topic;
+
       const { deferredActions } = state;
 
-      const actions = deferredActions[topic] || [];
+      const topicActions: DeferredActionArray = R.append(
+        deferredAction,
+        deferredActions[topic] || []
+      );
 
-      return R.assocPath(["deferredActions", topic], actions, state);
+      return R.assocPath(["deferredActions", topic], topicActions, state);
     }
-    case TypeKeys.REDEX_CHANNEL_CONNECT_SUCCESS: {
+    case TypeKeys.REDEX_CHANNEL_JOIN_SUCCESS: {
       const topic = action.data.topic;
       return R.assocPath(["deferredActions", topic], [], state);
     }

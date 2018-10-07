@@ -1,6 +1,6 @@
 import { Store } from "./reducers";
 
 import Menu from "./menu/Menu";
-import Map from "./game/Map";
+import Game from "./game/Game";
 
-export const route = (store: Store): any => (store.game.gameId ? Map : Menu);
+export const route = (store: Store): any => (store.game.gameId ? Game : Menu);
