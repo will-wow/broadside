@@ -8,17 +8,21 @@ export enum TypeKeys {
 
 export type Action = GetConstantsAction | GetConstantsSuccessAction;
 
-type GetConstantsAction = RedexAction.ChannelPushAction<
-  undefined,
-  TypeKeys.GET_CONSTANTS
->;
-
-interface GetConstantsSuccessAction {
-  type: TypeKeys.GET_CONSTANTS_SUCCESS;
-  data: ConstantsReducer.t;
+interface GetConstantsAction {
+  data: undefined;
+  type: TypeKeys.GET_CONSTANTS;
 }
 
-// TODO: Nicer wrapper for no-data creators.
-export const onGetConstants = RedexAction.channelPushAction<GetConstantsAction>(
-  TypeKeys.GET_CONSTANTS
-);
+interface GetConstantsSuccessAction {
+  data: ConstantsReducer.t;
+  type: TypeKeys.GET_CONSTANTS_SUCCESS;
+}
+
+export const onGetConstants = (): GetConstantsAction =>
+  RedexAction.channelAction<GetConstantsAction>(
+    { topic: "" },
+    {
+      data: undefined,
+      type: TypeKeys.GET_CONSTANTS
+    }
+  );

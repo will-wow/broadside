@@ -10,9 +10,11 @@ interface RedexConfig {
 }
 
 export default (config: RedexConfig): Middleware => api => next => {
+  const channels: Channels = new Channels(config.socketEndpoint, api.dispatch);
+
   return (action: FSA | Action.AnyRedexAction): FSA | null => {
     if (Action.isRedexAction(action)) {
-      return handleRedexAction(config, api, next, action);
+      return handleRedexAction(channels, config, api, next, action);
     }
 
     return next(action);
@@ -20,13 +22,12 @@ export default (config: RedexConfig): Middleware => api => next => {
 };
 
 const handleRedexAction = (
+  channels: Channels,
   config: RedexConfig,
   api: MiddlewareAPI,
   next: Dispatch,
   action: Action.AnyRedexAction
 ): FSA => {
-  const channels = new Channels(config.socketEndpoint, api.dispatch);
-
   switch (action.redex.type) {
     case Action.RedexActionType.SocketJoin: {
       const socketPayload = action.redex.data;

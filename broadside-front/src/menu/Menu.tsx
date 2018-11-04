@@ -6,7 +6,7 @@ import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Store } from "../reducers";
 
-import { onNewGame, eventsToActions, onSocketConnect } from "./actions";
+import { onNewGame, onSocketConnect, onLobbyConnect } from "./actions";
 
 import GameLink from "./GameLink";
 
@@ -14,23 +14,20 @@ interface MenuProps {
   games: string[];
   onNewGame: typeof onNewGame;
   onSocketConnect: typeof onSocketConnect;
-  onChannelConnect: typeof onChannelConnect;
+  onLobbyConnect: typeof onLobbyConnect;
 }
 
 const tokenEndpoint = "http://localhost:4000/api/users";
 
 class Menu extends React.Component<MenuProps> {
   componentDidMount = async () => {
-    const { onSocketConnect, onChannelConnect } = this.props;
+    const { onSocketConnect, onLobbyConnect } = this.props;
     const {
       data: { token }
     } = await axios.post(tokenEndpoint);
 
     onSocketConnect(token);
-    onChannelConnect({
-      eventsToActions,
-      topic: "open_games:lobby"
-    });
+    onLobbyConnect();
   };
 
   render() {
@@ -61,7 +58,7 @@ export const mapStateToProps = (state: Store) => {
 export const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      onChannelConnect,
+      onLobbyConnect,
       onNewGame,
       onSocketConnect
     },

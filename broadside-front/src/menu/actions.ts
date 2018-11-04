@@ -54,10 +54,10 @@ interface JoinGameAction {
   };
 }
 
-type NewGameAction = RedexAction.ChannelPushAction<
-  undefined,
-  TypeKeys.NEW_GAME
->;
+interface NewGameAction {
+  data: undefined;
+  type: TypeKeys.NEW_GAME;
+}
 
 interface NewGameActionSuccess {
   type: TypeKeys.NEW_GAME_SUCCESS;
@@ -66,7 +66,33 @@ interface NewGameActionSuccess {
   };
 }
 
-export const eventsToActions = {
+export const onJoinGame = (data: { gameId: string }): JoinGameAction => ({
+  data,
+  type: TypeKeys.JOIN_GAME
+});
+
+export const onNewGame = (): NewGameAction =>
+  RedexAction.channelAction<NewGameAction>(
+    { topic: "open_games:lobby" },
+    { data: undefined, type: TypeKeys.NEW_GAME }
+  );
+
+/**
+ * Pass a token to the socket to connect to it. Create a function for this to declare the type of data the socket needs, and so components don't need to know about redex.
+ */
+export const onSocketConnect = (token: string) =>
+  RedexAction.socketJoinAction({ token })({
+    data: undefined,
+    type: "socket_join"
+  });
+
+export const onLobbyConnect = () =>
+  RedexAction.channelJoinAction({
+    eventsToActions,
+    topic: "open_games:lobby"
+  })({ data: undefined, type: "join_lobby" });
+
+const eventsToActions = {
   game_ended: TypeKeys.GAME_ENDED,
   game_list: TypeKeys.GAME_LIST,
   game_started: TypeKeys.GAME_STARTED,
@@ -75,24 +101,3 @@ export const eventsToActions = {
   new_game: TypeKeys.NEW_GAME,
   new_game_created: TypeKeys.NEW_GAME_SUCCESS
 };
-
-export const onJoinGame = (data: { gameId: string }): JoinGameAction => ({
-  data,
-  type: TypeKeys.JOIN_GAME
-});
-
-export const onNewGame = RedexAction.channelAction(
-  {
-    topic: "open_games:lobby"
-  },
-  { type: TypeKeys.NEW_GAME, data: undefined }
-);
-
-/**
- * Pass a token to the socket to connect to it. Create a function for this to declare the type of data the socket needs, and so components don't need to know about redex.
- */
-export const onSocketConnect = (token: string) =>
-  RedexAction.socketJoinAction({ token });
-
-export const onChannelConnect = () =>
-  RedexAction.channelJoinAction("open_games:lobby")();

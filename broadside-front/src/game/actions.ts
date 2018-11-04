@@ -20,13 +20,13 @@ interface GameStateAction {
   };
 }
 
-type KeyChangeAction = RedexAction.ChannelPushAction<
-  {
+interface KeyChangeAction {
+  data: {
     event: "down" | "up";
     key: string;
-  },
-  TypeKeys.KEY_CHANGE
->;
+  };
+  type: TypeKeys.KEY_CHANGE;
+}
 
 export const eventsToActions = {
   constants: ConstantsActions.TypeKeys.GET_CONSTANTS_SUCCESS,
@@ -34,7 +34,29 @@ export const eventsToActions = {
   key_change: TypeKeys.KEY_CHANGE
 };
 
-// TODO
-export const onKeyChange = RedexAction.channelAction<KeyChangeAction>(
-  TypeKeys.KEY_CHANGE
-);
+export const onKeyChange = (
+  topic: string,
+  {
+    key,
+    event
+  }: {
+    key: string;
+    event: "up" | "down";
+  }
+): KeyChangeAction => {
+  const action: KeyChangeAction = {
+    data: {
+      event,
+      key
+    },
+    type: TypeKeys.KEY_CHANGE
+  };
+
+  return RedexAction.channelAction({ topic }, action);
+};
+
+export const onGameConnect = (gameId: string) =>
+  RedexAction.channelJoinAction({
+    eventsToActions,
+    topic: `game:${gameId}`
+  })({ type: "join_lobby", data: undefined });

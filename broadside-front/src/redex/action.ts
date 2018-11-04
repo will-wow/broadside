@@ -67,6 +67,17 @@ export enum RedexActionType {
  * @param action - The action. The payload will be send to the channel.
  */
 
+// export const channelAction = <Action extends FSA>(
+//   channelInfo: ChannelPushActionData,
+//   action: Action
+// ): ChannelPushAction<Action> =>
+//   R.merge(action, {
+//     redex: {
+//       data: channelInfo,
+//       type: RedexActionType.ChannelPush as RedexActionType.ChannelPush
+//     }
+//   });
+
 export function channelAction<Action extends FSA>(
   channelInfo: ChannelPushActionData
 ): (action: Action) => ChannelPushAction<FSA<Action["data"], Action["type"]>>;

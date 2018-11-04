@@ -8,8 +8,8 @@ import Bullet from "./Bullet";
 import { BulletData } from "./Bullet";
 import { Store } from "../reducers";
 import * as GameSelectors from "./selectors";
-import { onKeyChange, eventsToActions } from "./actions";
-import { onChannelConnect } from "../redex/actions";
+import { onKeyChange, onGameConnect } from "./actions";
+import ScoreCard from "./ScoreCard";
 
 interface GameProps {
   gameId: string;
@@ -20,7 +20,7 @@ interface GameProps {
   ships: ShipData[];
   isPlaying: boolean;
   onKeyChange: typeof onKeyChange;
-  onChannelConnect: typeof onChannelConnect;
+  onGameConnect: typeof onGameConnect;
 }
 
 class Game extends React.Component<GameProps> {
@@ -45,9 +45,9 @@ class Game extends React.Component<GameProps> {
   };
 
   componentDidMount = async () => {
-    const { gameId, onChannelConnect } = this.props;
+    const { gameId, onGameConnect } = this.props;
 
-    onChannelConnect({ topic: `game:${gameId}`, eventsToActions });
+    onGameConnect(gameId);
 
     document.addEventListener("keydown", this.handleKeyDown, false);
     document.addEventListener("keyup", this.handleKeyUp, false);
@@ -116,7 +116,7 @@ export const mapStateToProps = (state: Store) => {
 export const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      onChannelConnect,
+      onGameConnect,
       onKeyChange
     },
     dispatch
