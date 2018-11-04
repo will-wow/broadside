@@ -9,6 +9,7 @@ defmodule Broadside.Games.Radian do
 
   @one_eighty_over_pi 180 / :math.pi()
   @pi_over_one_eighty :math.pi() / 180
+  @full_circle 2 * :math.pi()
 
   @spec new(number) :: t
   def new(n) do
@@ -25,5 +26,35 @@ defmodule Broadside.Games.Radian do
     radians = degrees * @pi_over_one_eighty
 
     %Radian{radians: radians}
+  end
+
+  @spec from_coordinates(number, number) :: t
+  def from_coordinates(x, y) do
+    radians =
+      case x >= 0 do
+        true -> :math.atan(y / x)
+        false -> :math.atan(y / x) + :math.pi()
+      end
+
+    %Radian{radians: radians}
+    |> normalize()
+  end
+
+  defp normalize(%Radian{radians: radians}) do
+    cond do
+      radians < 0 ->
+        (radians + @full_circle)
+        |> new()
+        |> normalize()
+
+      radians >= @full_circle ->
+        (radians - @full_circle)
+        |> new()
+        |> normalize()
+
+      true ->
+        radians
+        |> new()
+    end
   end
 end

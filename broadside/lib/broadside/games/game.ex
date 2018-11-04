@@ -4,7 +4,6 @@ defmodule Broadside.Games.Game do
   alias Broadside.Games.Bullet
   alias Broadside.Games.Constants
   alias Broadside.Games.Position
-  alias Broadside.Games.Score
   alias Broadside.Games.Ship
   alias Broadside.Games.UserState
   alias Broadside.Id
@@ -165,13 +164,13 @@ defmodule Broadside.Games.Game do
         Position.perpendicular(
           ship_position,
           :left,
-          velocity: @bullet_speed,
+          @bullet_speed,
           max_velocity: @bullet_speed
         ),
         Position.perpendicular(
           ship_position,
           :right,
-          velocity: @bullet_speed,
+          @bullet_speed,
           max_velocity: @bullet_speed
         )
       ]

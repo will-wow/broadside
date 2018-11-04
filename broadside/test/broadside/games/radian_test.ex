@@ -14,4 +14,9 @@ defmodule Broadside.Games.RadianTest do
       0.01
     )
   end
+
+  test "converts from coordinates" do
+    assert Radian.from_coordinates(1, -1)
+           |> Radian.to_degrees() == 315.0
+  end
 end

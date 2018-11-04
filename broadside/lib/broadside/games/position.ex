@@ -2,6 +2,7 @@ defmodule Broadside.Games.Position do
   alias __MODULE__
   alias __MODULE__.Change
   alias Broadside.Games.Radian
+  alias Broadside.Games.Coordinates
   alias Broadside.Games.Constants
 
   @type t :: %Position{
@@ -91,20 +92,34 @@ defmodule Broadside.Games.Position do
     end
   end
 
-  @spec perpendicular(t, :left | :right, keyword) :: t
-  def perpendicular(%Position{x: x, y: y, heading: heading}, side, args) do
+  @spec perpendicular(t, :left | :right, number, keyword) :: t
+  def perpendicular(
+        %Position{x: x, y: y, heading: heading, velocity: velocity},
+        side,
+        perpendicular_velocity,
+        args
+      ) do
     heading_delta =
       case side do
         :left -> -90
         :right -> 90
       end
 
-    new_heading = heading + heading_delta
+    perpendicular_heading = heading + heading_delta
+
+    c1 = Coordinates.from_angle(velocity, heading)
+    c2 = Coordinates.from_angle(perpendicular_velocity, perpendicular_heading)
+
+    {new_velocity, new_heading} =
+      c1
+      |> Coordinates.add(c2)
+      |> Coordinates.to_angle_vector()
 
     %Position{
       x: x,
       y: y,
-      heading: new_heading
+      heading: new_heading,
+      velocity: new_velocity
     }
     |> struct!(args)
   end
