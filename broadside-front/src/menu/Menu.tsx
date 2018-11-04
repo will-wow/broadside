@@ -6,9 +6,7 @@ import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Store } from "../reducers";
 
-import { onSocketConnect, onChannelConnect } from "../redex/actions";
-
-import { onNewGame, eventsToActions } from "./actions";
+import { onNewGame, eventsToActions, onSocketConnect } from "./actions";
 
 import GameLink from "./GameLink";
 
@@ -28,7 +26,7 @@ class Menu extends React.Component<MenuProps> {
       data: { token }
     } = await axios.post(tokenEndpoint);
 
-    onSocketConnect({ token });
+    onSocketConnect(token);
     onChannelConnect({
       eventsToActions,
       topic: "open_games:lobby"

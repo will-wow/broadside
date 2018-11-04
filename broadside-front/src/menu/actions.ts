@@ -76,17 +76,23 @@ export const eventsToActions = {
   new_game_created: TypeKeys.NEW_GAME_SUCCESS
 };
 
-export const onJoinGame = RedexAction.withData<JoinGameAction>(
-  TypeKeys.JOIN_GAME
-);
+export const onJoinGame = (data: { gameId: string }): JoinGameAction => ({
+  data,
+  type: TypeKeys.JOIN_GAME
+});
 
-// TODO: This is lame.
-export const onNewGame = RedexAction.channelAction<
-  undefined,
-  TypeKeys.NEW_GAME
->(
+export const onNewGame = RedexAction.channelAction(
   {
     topic: "open_games:lobby"
   },
   { type: TypeKeys.NEW_GAME, data: undefined }
 );
+
+/**
+ * Pass a token to the socket to connect to it. Create a function for this to declare the type of data the socket needs, and so components don't need to know about redex.
+ */
+export const onSocketConnect = (token: string) =>
+  RedexAction.socketJoinAction({ token });
+
+export const onChannelConnect = () =>
+  RedexAction.channelJoinAction("open_games:lobby")();

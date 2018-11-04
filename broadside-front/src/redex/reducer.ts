@@ -1,14 +1,15 @@
 import * as R from "ramda";
-import * as Action from "./action";
+import { FSA } from "./action";
+import * as RedexAction from "./action";
 
-import { Action as RedexAction, TypeKeys } from "./actions";
+import { Action, TypeKeys } from "./actions";
 
 export interface t {
   token?: string;
   deferredActions: DeferredActions;
 }
 
-type DeferredActionArray = Array<Action.ChannelPushAction<any, any>>;
+type DeferredActionArray = Array<RedexAction.ChannelPushAction<FSA>>;
 
 interface DeferredActions {
   [topic: string]: DeferredActionArray;
@@ -18,7 +19,7 @@ const initialState: t = {
   deferredActions: {}
 };
 
-export const reducer = (state: t = initialState, action: RedexAction): t => {
+export const reducer = (state: t = initialState, action: Action): t => {
   switch (action.type) {
     case TypeKeys.REDEX_DEFER_ACTION: {
       const deferredAction = action.data;

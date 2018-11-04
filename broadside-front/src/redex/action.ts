@@ -1,55 +1,56 @@
 import * as R from "ramda";
-import { Action } from "redux";
-import { TypeKeys as RedexTypeKeys } from "./actions";
+import { Action as ReduxAction } from "redux";
+import * as Channels from "./channels-service";
 
-export interface FSA<Data = undefined, Type = string> extends Action {
+export interface FSA<Data = any, Type = string> extends ReduxAction {
   type: Type;
   data: Data;
 }
 
 export interface RedexAction<
-  RedexType extends RedexActionType,
-  Type extends string,
-  RedexData,
-  Data = undefined
-> extends FSA<Data, Type> {
-  redex: RedexPayload<RedexType, RedexData>;
+  Action extends FSA,
+  Redex extends RedexMetadata<any, RedexActionType>
+> {
+  data: Action["data"];
+  redex: Redex;
+  type: Action["type"];
 }
 
-export type AnyRedexAction = RedexAction<any, any, any, any>;
+export type AnyRedexAction =
+  | SocketJoinAction<FSA>
+  | ChannelJoinAction<FSA>
+  | ChannelPushAction<FSA>;
 
-export type ChannelJoinAction<Data = undefined> = RedexAction<
-  RedexActionType.ChannelJoin,
-  RedexTypeKeys.REDEX_CHANNEL_JOIN,
-  {
-    topic: string;
-    // TODO
-    eventsToActions?: {};
-  },
-  Data
+export type SocketJoinAction<Action extends FSA> = RedexAction<
+  Action,
+  RedexMetadata<{}, RedexActionType.SocketJoin>
 >;
 
-export type ChannelPushAction<
-  Data = undefined,
-  Type extends string = string
-> = RedexAction<RedexActionType.ChannelPush, Type, ChannelPushActionInfo, Data>;
-
-export type SocketJoinAction<Data = undefined> = RedexAction<
-  RedexActionType.SocketJoin,
-  RedexTypeKeys.REDEX_SOCKET_JOIN,
-  {},
-  Data
+export type ChannelJoinAction<Action extends FSA> = RedexAction<
+  Action,
+  RedexMetadata<ChannelJoinActionData, RedexActionType.ChannelJoin>
 >;
 
-interface ChannelPushActionInfo {
+export type ChannelPushAction<Action extends FSA> = RedexAction<
+  Action,
+  RedexMetadata<ChannelPushActionData, RedexActionType.ChannelPush>
+>;
+
+interface RedexMetadata<RedexData, RedexType extends RedexActionType> {
+  data: RedexData;
+  type: RedexType;
+}
+
+interface ChannelJoinActionData {
+  topic: string;
+  // TODO
+  eventsToActions: Channels.EventsToActions;
+}
+
+interface ChannelPushActionData {
   topic: string;
   // TODO
   channelEvent?: string;
-}
-
-interface RedexPayload<RedexType extends RedexActionType, RedexData> {
-  data: RedexData;
-  type: RedexType;
 }
 
 export enum RedexActionType {
@@ -66,16 +67,16 @@ export enum RedexActionType {
  * @param action - The action. The payload will be send to the channel.
  */
 
-export function channelAction<Data = any, Type extends string = string>(
-  channelInfo: ChannelPushActionInfo
-): (action: FSA<Data, Type>) => ChannelPushAction<Data, Type>;
-export function channelAction<Data = any, Type extends string = string>(
-  channelInfo: ChannelPushActionInfo,
-  action: FSA<Data, Type>
-): ChannelPushAction<Data, Type>;
-export function channelAction<Data = any, Type extends string = string>(
-  channelInfo: ChannelPushActionInfo,
-  action?: FSA<Data, Type>
+export function channelAction<Action extends FSA>(
+  channelInfo: ChannelPushActionData
+): (action: Action) => ChannelPushAction<FSA<Action["data"], Action["type"]>>;
+export function channelAction<Action extends FSA>(
+  channelInfo: ChannelPushActionData,
+  action: Action
+): ChannelPushAction<Action>;
+export function channelAction<Action extends FSA>(
+  channelInfo: ChannelPushActionData,
+  action?: Action
 ) {
   if (action) {
     return R.merge(action, {
@@ -85,71 +86,57 @@ export function channelAction<Data = any, Type extends string = string>(
       }
     });
   } else {
-    return (action: FSA<Data, Type>) => channelAction(channelInfo, action);
+    return (action: Action) => channelAction(channelInfo, action);
   }
 }
 
 /**
- * Returns an action that will cause Redex to join a channel.
+ * Wrap an action so that it will also cause Redex to join a channel.
  * Requires an open socket first.
+ * @param topic - The name of the socket to join.
  * @param data - The data to pass to the channel.
  */
-export const channelJoinAction = <Data = undefined>(topic: string) => (
-  data?: Data
-): ChannelJoinAction<Data | undefined> =>
-  createRedexAction(
-    RedexActionType.ChannelJoin,
-    RedexTypeKeys.REDEX_CHANNEL_JOIN,
-    { topic },
-    data
-  );
+export const channelJoinAction = <Action extends FSA>(
+  channelInfo: ChannelJoinActionData
+) => (action: Action): ChannelJoinAction<Action> =>
+  createRedexAction(action, {
+    data: channelInfo,
+    type: RedexActionType.ChannelJoin
+  });
 
 /**
  * Returns an action that will cause Redex to join a socket.
  * @param data - The data to pass to the socket. Probably something like `{ token }`
  */
-export const socketJoinAction = <Data = undefined>(
-  data: Data
-): SocketJoinAction<Data> =>
-  createRedexAction(
-    RedexActionType.SocketJoin,
-    RedexTypeKeys.REDEX_SOCKET_JOIN,
-    {},
-    data
-  );
+export const socketJoinAction = <Action extends FSA>(socketInfo: any) => (
+  action: Action
+): SocketJoinAction<Action> =>
+  createRedexAction(action, {
+    data: socketInfo,
+    type: RedexActionType.SocketJoin
+  });
 
-const createRedexAction = <
-  RedexType extends RedexActionType,
-  Type extends string,
-  RedexData,
-  Data = undefined
->(
-  redexType: RedexType,
-  type: Type,
-  redexData: RedexData,
-  data: Data
-): RedexAction<RedexType, Type, RedexData, Data> => ({
-  data,
-  redex: {
-    data: redexData,
-    type: redexType
-  },
-  type
-});
-
-export const withData = <T extends FSA<any>>(type: T["type"]) => (
-  data: T["data"]
-): T =>
-  ({
-    data,
-    type
-  } as T);
-
-export const noData = <T extends FSA<undefined>>(type: T["type"]) => (): T =>
-  ({
-    type
-  } as T);
-
+/**
+ * True if the action is decorated with data to be sent to redex.
+ * @param action Tr
+ */
 export const isRedexAction = (
-  action: FSA<any> | AnyRedexAction
+  action: FSA | AnyRedexAction
 ): action is AnyRedexAction => Boolean((action as AnyRedexAction).redex);
+
+/**
+ * Creates an action that redex will also consume.
+ * @param action The FSA
+ * @param redex The redex metadata
+ */
+const createRedexAction = <
+  Action extends FSA,
+  RedexData extends RedexMetadata<any, RedexActionType>
+>(
+  action: Action,
+  redex: RedexData
+): RedexAction<Action, RedexData> => ({
+  data: action.data,
+  redex,
+  type: action.type
+});

@@ -1,6 +1,7 @@
 import Channels from "./channels-service";
 import { Middleware, MiddlewareAPI, Dispatch } from "redux";
 import * as Action from "./action";
+import { FSA } from "./action";
 
 import * as RedexActions from "./actions";
 
@@ -9,7 +10,7 @@ interface RedexConfig {
 }
 
 export default (config: RedexConfig): Middleware => api => next => {
-  return (action: Action.FSA | Action.AnyRedexAction): Action.FSA | null => {
+  return (action: FSA | Action.AnyRedexAction): FSA | null => {
     if (Action.isRedexAction(action)) {
       return handleRedexAction(config, api, next, action);
     }
@@ -23,7 +24,7 @@ const handleRedexAction = (
   api: MiddlewareAPI,
   next: Dispatch,
   action: Action.AnyRedexAction
-): Action.FSA => {
+): FSA => {
   const channels = new Channels(config.socketEndpoint, api.dispatch);
 
   switch (action.redex.type) {
@@ -49,9 +50,11 @@ const handleRedexAction = (
     }
 
     case Action.RedexActionType.ChannelPush: {
-      if (channels.isChannelReady(action)) {
+      const pushAction = action as Action.ChannelPushAction<FSA>;
+
+      if (channels.isChannelReady(pushAction)) {
         // Send the action to the server, and redux.
-        channels.sendMessage(action);
+        channels.sendMessage(pushAction);
         return next(action);
       } else {
         // Defer the action until the channel is open.

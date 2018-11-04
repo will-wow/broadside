@@ -5,6 +5,7 @@ import * as Utils from "../utils";
 
 import * as RedexActions from "./actions";
 import * as Action from "./action";
+import { FSA } from "./action";
 
 export interface EventsToActions {
   [topic: string]: string;
@@ -30,9 +31,9 @@ export default class Channels {
 
   constructor(private endpoint: string, private dispatch: Dispatch) {}
 
-  openSocket = (token: string) => {
+  openSocket = (socketPayload: any) => {
     const socket = new Socket(this.endpoint, {
-      params: { token }
+      params: socketPayload
     });
     socket.connect();
     this.socket = socket;
@@ -55,7 +56,7 @@ export default class Channels {
 
       this.channels[topic] = channelData;
 
-      this.dispatch(RedexActions.onChannelConnectSuccess({ topic }));
+      this.dispatch(RedexActions.onChannelConnectSuccess(topic));
     });
   };
 
@@ -78,7 +79,7 @@ export default class Channels {
     redex: {
       data: { topic }
     }
-  }: Action.ChannelPushAction<any>): boolean => Boolean(this.channels[topic]);
+  }: Action.ChannelPushAction<FSA>): boolean => Boolean(this.channels[topic]);
 
   private listen = (channelData: ChannelData) => {
     R.map(({ event, action }) => {
