@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as R from "ramda";
 import { connect } from "react-redux";
 
 import styled from "../styled-components";
@@ -11,9 +12,22 @@ interface ScoreCardProps {
   scores: Score.t;
 }
 
-const ScoreCard: React.SFC<ScoreCardProps> = ({ scores }) => (
-  <Hud>scores</Hud>
-);
+const ScoreCard: React.SFC<ScoreCardProps> = ({ scores }) => 
+  (
+    <Hud>
+      {mapPairs(([userId, score]: [string, number]) => (
+        <div>
+          {userId}: {score}
+        </div>
+      ))(scores)}
+    </Hud>
+  );
+
+const mapPairs = (f: ((pair: [any, any]) => any)) => (obj: any): any =>
+  R.pipe(
+    R.toPairs,
+    R.map(f)
+  )(obj);
 
 const Hud = styled.div`
   position: absolute;
