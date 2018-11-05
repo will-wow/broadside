@@ -8,7 +8,8 @@ config :broadside, BroadsideWeb.Endpoint,
   server: true,
   secret_key_base: "${SECRET_KEY_BASE}",
   # This is critical for ensuring web-sockets properly authorize.
-  url: [host: "localhost", port: {:system, "PORT"}]
+  url: [host: "${MY_HOSTNAME}", port: {:system, "PORT"}],
+  check_origin: ["//broadside.surge.sh"]
 
 # Do not print debug messages in production
 config :logger, level: :info
