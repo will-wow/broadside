@@ -18,13 +18,15 @@ export interface ShipProps {
   maxX?: number;
   maxY?: number;
   ship: ShipData;
+  userId: string;
 }
 
 const Ship = styled("div").attrs<ShipProps>({
-  style: ({ fps, maxX, maxY, ship: { position } }: ShipProps) => {
+  style: ({ fps, maxX, maxY, userId, ship: { id, position } }: ShipProps) => {
     const sprite = sailSprite(position.maxVelocity, position.velocity);
     return {
       backgroundImage: `url(${sprite})`,
+      opacity: id !== userId ? 0.7 : 1,
       transform:
         maxX &&
         maxY &&
