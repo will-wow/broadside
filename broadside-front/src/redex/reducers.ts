@@ -2,7 +2,7 @@ import * as R from "ramda";
 import { combineReducers } from "redux";
 import * as Action from "./action";
 import * as RedexReducer from "./reducer";
-import * as Utils from "../utils";
+import * as Utils from "../lib/utils";
 
 export interface RedexReducerConfig<T> {
   name: string;

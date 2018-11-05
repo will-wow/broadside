@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "../styled-components";
 import axios from "axios";
+import { serverUrl } from "../lib/endpoints";
 
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -17,7 +18,7 @@ interface MenuProps {
   onLobbyConnect: typeof onLobbyConnect;
 }
 
-const tokenEndpoint = "http://localhost:4000/api/users";
+const tokenEndpoint = serverUrl("http", "api/users");
 
 class Menu extends React.Component<MenuProps> {
   componentDidMount = async () => {

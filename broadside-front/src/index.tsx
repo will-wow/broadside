@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { serverUrl } from "./lib/endpoints";
 import { Provider } from "react-redux";
 import { createStore, applyMiddleware } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
@@ -13,7 +14,7 @@ const composeEnhancers = composeWithDevTools({});
 
 const middleware = [
   redexMiddleware({
-    socketEndpoint: "ws://localhost:4000/socket",
+    socketEndpoint: serverUrl("ws", "socket")
   })
 ];
 

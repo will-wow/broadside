@@ -1,7 +1,7 @@
 import * as R from "ramda";
 import { Dispatch } from "redux";
 import { Channel, Socket } from "phoenix";
-import * as Utils from "../utils";
+import * as Utils from "../lib/utils";
 
 import * as RedexActions from "./actions";
 import * as Action from "./action";
