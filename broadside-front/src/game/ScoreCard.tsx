@@ -10,37 +10,47 @@ import * as Score from "./score";
 
 interface ScoreCardProps {
   scores: Score.t;
+  userId: string;
 }
 
-const ScoreCard: React.SFC<ScoreCardProps> = ({ scores }) => 
-  (
-    <Hud>
-      {mapPairs(([userId, score]: [string, number]) => (
-        <div>
-          {userId}: {score}
-        </div>
-      ))(scores)}
-    </Hud>
-  );
-
-const mapPairs = (f: ((pair: [any, any]) => any)) => (obj: any): any =>
-  R.pipe(
-    R.toPairs,
-    R.map(f)
-  )(obj);
+const ScoreCard: React.SFC<ScoreCardProps> = ({ scores, userId }) => (
+  <Hud>
+    <Title>Scores</Title>
+    {R.map(([scoreUserId, score]: [string, number]) => (
+      <UserScore key={scoreUserId}>
+        <UserScoreUser>
+          {userId === scoreUserId ? "Me" : scoreUserId}
+        </UserScoreUser>: {score}
+      </UserScore>
+    ))(scores)}
+  </Hud>
+);
 
 const Hud = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
   background: white;
-  opacity: 0.5;
   color: black;
+  font: "sans-serif";
+  opacity: 0.5;
+  padding: 4px;
+  position: absolute;
+  right: 0;
+  top: 0;
+`;
+
+const UserScore = styled.div``;
+
+const UserScoreUser = styled.span`
+  font-weight: bold;
+`;
+
+const Title = styled.div`
+  font-size: 2rem;
 `;
 
 export const mapStateToProps = (state: Store): Partial<ScoreCardProps> => {
   return {
-    scores: GameSelectors.getScores(state)
+    scores: GameSelectors.getScores(state),
+    userId: state.menu.userId
   };
 };
 

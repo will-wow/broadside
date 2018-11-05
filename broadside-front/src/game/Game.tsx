@@ -19,7 +19,7 @@ interface GameProps {
   maxY: number;
   ships: ShipData[];
   isPlaying: boolean;
-  userId: string,
+  userId: string;
   onKeyChange: typeof onKeyChange;
   onGameConnect: typeof onGameConnect;
 }
@@ -65,7 +65,14 @@ class Game extends React.Component<GameProps> {
       <GameBackground isPlaying={isPlaying}>
         <ScoreCard />
         {ships.map(ship => (
-          <Ship key={ship.id} fps={fps} maxX={maxX} maxY={maxY} ship={ship} userId={userId} />
+          <Ship
+            key={ship.id}
+            fps={fps}
+            maxX={maxX}
+            maxY={maxY}
+            ship={ship}
+            userId={userId}
+          />
         ))}
         {bullets.map(bullet => (
           <Bullet

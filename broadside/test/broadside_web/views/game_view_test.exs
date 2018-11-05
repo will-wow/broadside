@@ -20,10 +20,10 @@ defmodule BroadsideWeb.GameViewTest do
              "bullets" => [],
              "fps" => 10,
              "id" => "game_1",
-             "score" => %{
-               "alice" => 0,
-               "bob" => 0
-             },
+             "score" => [
+               {"alice", 0},
+               {"bob", 0}
+             ],
              "ships" => [
                %{"id" => "alice"},
                %{"id" => "bob"}

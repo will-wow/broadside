@@ -8,14 +8,14 @@ import { ShipData } from "./Ship";
 
 export interface t {
   gameId?: string;
-  scores: Score.t;
+  score: Score.t;
   ships: ShipData[];
   bullets: BulletData[];
 }
 
 const initialState = {
   bullets: [],
-  scores: {},
+  score: [],
   ships: []
 };
 

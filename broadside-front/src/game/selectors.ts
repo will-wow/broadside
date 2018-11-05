@@ -12,4 +12,4 @@ export const isPlaying = (state: Store): boolean => {
   return R.any(R.propEq("id", userId), ships);
 };
 
-export const getScores = (state: Store): Score.t => state.game.scores;
+export const getScores = (state: Store): Score.t => state.game.score;

@@ -23,13 +23,13 @@ defmodule Broadside.Games.Game do
 
   defstruct [:id, fps: @fps, users: %{}, bullets: []]
 
-  @spec score(game :: t) :: map
+  @spec score(game :: t) :: [{String.t(), integer}]
   def score(%Game{users: users}) do
     users
     |> Enum.map(fn {user_id, user} ->
       {user_id, user.wins}
     end)
-    |> Enum.into(%{})
+    |> Enum.sort_by(fn {_, wins} -> wins end)
   end
 
   @spec ships(game :: t) :: [Ship.t()]

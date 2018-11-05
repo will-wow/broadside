@@ -1,3 +1,1 @@
-export interface t {
-  [userId: string]: number;
-}
+export type t = Array<[string, number]>;
