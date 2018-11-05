@@ -69,7 +69,8 @@
     "test:coverage": "react-scripts-ts test --env=jsdom --coverage",
     "eject": "react-scripts-ts eject",
     "precommit": "lint-staged",
-    "heroku-postbuild": "npm-run-all build"
+    "heroku-postbuild": "npm-run-all build",
+    "deploy": "surge -p ./build -d broadside.surge.sh"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": "tslint",
@@ -84,5 +85,8 @@
       "src/**/*.{ts,tsx}",
       "!src/registerServiceWorker.ts"
     ]
+  },
+  "devDependencies": {
+    "surge": "^0.20.1"
   }
 }

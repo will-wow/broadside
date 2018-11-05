@@ -21,7 +21,7 @@ defmodule BroadsideWeb.Endpoint do
 
   plug Plug.Logger
 
-  plug CORSPlug, origin: &BroadsideWeb.Endpoint.cors_origins/0
+  plug CORSPlug
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

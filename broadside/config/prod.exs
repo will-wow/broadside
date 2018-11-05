@@ -12,3 +12,8 @@ config :broadside, BroadsideWeb.Endpoint,
 
 # Do not print debug messages in production
 config :logger, level: :info
+
+config :cors_plug,
+  origin: ["https://broadside.surge.sh"],
+  max_age: 86400,
+  methods: ["GET", "POST"]
