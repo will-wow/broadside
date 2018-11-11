@@ -8,6 +8,9 @@ import * as GameSelectors from "./selectors";
 
 import * as Score from "./score";
 
+import * as Text from "../styles/text";
+import * as Colors from "../styles/colors";
+
 interface ScoreCardProps {
   scores: Score.t;
   userId: string;
@@ -15,7 +18,7 @@ interface ScoreCardProps {
 
 const ScoreCard: React.SFC<ScoreCardProps> = ({ scores, userId }) => (
   <Hud>
-    <Title>Scores</Title>
+    <Text.SectionTitle>Scores</Text.SectionTitle>
     {R.map(([scoreUserId, score]: [string, number]) => (
       <UserScore key={scoreUserId}>
         <UserScoreUser>
@@ -27,8 +30,8 @@ const ScoreCard: React.SFC<ScoreCardProps> = ({ scores, userId }) => (
 );
 
 const Hud = styled.div`
-  background: white;
-  color: black;
+  background: ${Colors.paper};
+  color: ${Colors.pencil};
   font: "sans-serif";
   opacity: 0.5;
   padding: 4px;
@@ -41,10 +44,6 @@ const UserScore = styled.div``;
 
 const UserScoreUser = styled.span`
   font-weight: bold;
-`;
-
-const Title = styled.div`
-  font-size: 2rem;
 `;
 
 export const mapStateToProps = (state: Store): Partial<ScoreCardProps> => {

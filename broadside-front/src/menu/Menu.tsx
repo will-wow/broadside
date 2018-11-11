@@ -19,7 +19,7 @@ import battle5 from "../img/battle-5.jpg";
 
 import * as Utils from '../lib/utils';
 
-
+import * as Text from '../styles/text';
 import * as Colors from "../styles/colors";
 import { Button } from "../styles/buttons";
 
@@ -49,10 +49,10 @@ class Menu extends React.Component<MenuProps> {
     const { games } = this.props;
     return (
       <MenuBackground>
-        <Title>Broadside</Title>
+        <Text.Title>Broadside</Text.Title>
         <Button onClick={this.handleNewGame}>New Game</Button>
 
-        <SectionTitle>In-Progress Games</SectionTitle>
+        <Text.SectionTitle>In-Progress Games</Text.SectionTitle>
         <Games>{games.map(game => <GameLink key={game} game={game} />)}</Games>
       </MenuBackground>
     );
@@ -73,18 +73,6 @@ const MenuBackground = styled.div`
   background-position: center;
   background-repeat: no-repeat;
   padding: 3rem;
-`;
-
-const Title = styled.div`
-  color: ${Colors.pencil};
-  font-size: 3rem;
-  margin-top: 1rem;
-`;
-
-const SectionTitle = styled.div`
-  color: ${Colors.pencil};
-  font-size: 1.5rem;
-  margin-top: 1rem;
 `;
 
 const Games = styled.div`
