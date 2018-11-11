@@ -38,3 +38,9 @@ export const mapPairs = <T extends object>(
     R.toPairs,
     R.map(f)
   )(obj);
+
+export const sample = <T>(xs: T[]): T => {
+  const i = Math.floor(Math.random() * xs.length);
+
+  return xs[i];
+};

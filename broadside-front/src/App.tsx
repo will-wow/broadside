@@ -25,6 +25,7 @@ class App extends React.Component<AppProps> {
 const AppStyled = styled.div`
   height: 100%;
   width: 100%;
+  font-family: sans-serif;
 `;
 
 // tslint:disable:no-unused-expression
@@ -35,6 +36,9 @@ injectGlobal`
   }
   body {
     margin: 0;
+  }
+  * {
+    box-sizing: border-box;
   }
 `;
 

@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 
 import { Store } from "../reducers";
 import { onJoinGame } from "./actions";
+import { Button } from "../styles/buttons";
 
 interface GameLinkProps {
   game: string;
@@ -14,7 +15,7 @@ class GameLink extends React.Component<GameLinkProps> {
   render() {
     const { game } = this.props;
 
-    return <button onClick={this.joinGame}>{game}</button>;
+    return <Button onClick={this.joinGame}>{game}</Button>;
   }
 
   private joinGame = () => {
