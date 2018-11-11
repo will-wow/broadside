@@ -9,10 +9,15 @@ defmodule Broadside.Games.Ship do
   @type t :: %Ship{
           id: String.t(),
           position: Position.t(),
-          health: number
+          health: number,
+          reloading: float
         }
 
-  defstruct [:id, health: @max_health, position: %Position{}]
+  @fps Constants.get(:fps)
+  @reload_seconds Constants.get(:reload_speed)
+  @reload_per_frame 1 / (@reload_seconds * @fps)
+
+  defstruct [:id, health: @max_health, position: %Position{}, reloading: 0.0]
 
   @spec new(user_id :: String.t()) :: t
   def new(user_id) do
@@ -35,6 +40,31 @@ defmodule Broadside.Games.Ship do
       false -> {:alive, damaged_ship}
     end
   end
+
+  @spec shoot(t) :: t
+  def shoot(ship = %Ship{}) do
+    %Ship{ship | reloading: 1.0}
+  end
+
+  @spec frame_reload(t) :: t
+  def frame_reload(ship = %Ship{reloading: reloading}) do
+    cond do
+      reloading == 0.0 ->
+        ship
+
+      reloading < 0.0 ->
+        %Ship{ship | reloading: 0.0}
+
+      reloading > 0.0 ->
+        reloading = reloading - @reload_per_frame
+
+        %Ship{ship | reloading: reloading}
+    end
+  end
+
+  @spec reloading?(t) :: boolean()
+  def reloading?(%Ship{reloading: 0.0}), do: false
+  def reloading?(_), do: true
 
   @spec dead?(t) :: boolean
   defp dead?(%Ship{health: health}) do

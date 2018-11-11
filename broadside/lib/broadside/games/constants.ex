@@ -6,7 +6,8 @@ defmodule Broadside.Games.Constants do
     max_health: 3,
     max_velocity: 60,
     max_x: 1000,
-    max_y: 1000
+    max_y: 1000,
+    reload_speed: 2
   }
 
   @spec get(atom | [atom]) :: any

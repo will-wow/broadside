@@ -45,7 +45,10 @@ defmodule Broadside.Games.UserState do
           ship: ship
         }
       ) do
-    ship = update_ship_from_keys(ship, keys_down)
+    ship =
+      ship
+      |> update_ship_from_keys(keys_down)
+      |> Ship.frame_reload()
 
     struct!(user, ship: ship)
   end

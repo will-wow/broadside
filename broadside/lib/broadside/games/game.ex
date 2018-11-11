@@ -156,28 +156,40 @@ defmodule Broadside.Games.Game do
   @spec add_bullet(Game.t(), Id.t()) :: Game.t()
   defp add_bullet(game = %Game{users: users, bullets: bullets}, user_id) do
     user = users[user_id]
+    ship = user.ship
 
-    ship_position = user.ship.position
+    case Ship.reloading?(ship) do
+      true ->
+        game
 
-    bullets =
-      [
-        Position.perpendicular(
-          ship_position,
-          :left,
-          @bullet_speed,
-          max_velocity: @bullet_speed
-        ),
-        Position.perpendicular(
-          ship_position,
-          :right,
-          @bullet_speed,
-          max_velocity: @bullet_speed
-        )
-      ]
-      |> Enum.map(&Bullet.new(user_id, &1))
-      |> Enum.concat(bullets)
+      false ->
+        ship_position = ship.position
 
-    struct!(game, bullets: bullets)
+        bullets =
+          [
+            Position.perpendicular(
+              ship_position,
+              :left,
+              @bullet_speed,
+              max_velocity: @bullet_speed
+            ),
+            Position.perpendicular(
+              ship_position,
+              :right,
+              @bullet_speed,
+              max_velocity: @bullet_speed
+            )
+          ]
+          |> Enum.map(&Bullet.new(user_id, &1))
+          |> Enum.concat(bullets)
+
+        ship = Ship.shoot(ship)
+        user = struct!(user, ship: ship)
+
+        game
+        |> update_user(user.id, user)
+        |> struct!(bullets: bullets)
+    end
   end
 
   @spec handle_hit(t, Bullet.t(), UserState.t()) :: t
@@ -194,17 +206,11 @@ defmodule Broadside.Games.Game do
     case UserState.hit(hit_user) do
       {:dead, _user} ->
         game
-        |> Map.update!(:users, fn users ->
-          users
-          |> Map.update!(bullet.user_id, &UserState.win/1)
-          |> Map.delete(hit_user.id)
-        end)
+        |> remove_user(hit_user.id)
+        |> update_user(bullet.user_id, &UserState.win/1)
 
       {:alive, damaged_user} ->
-        game
-        |> Map.update!(:users, fn users ->
-          Map.put(users, hit_user.id, damaged_user)
-        end)
+        update_user(game, hit_user.id, damaged_user)
     end
   end
 
@@ -219,5 +225,29 @@ defmodule Broadside.Games.Game do
       false ->
         game
     end
+  end
+
+  @spec remove_user(t, String.t()) :: t
+  defp remove_user(game, user_id) do
+    game
+    |> Map.update!(:users, fn users ->
+      Map.delete(users, user_id)
+    end)
+  end
+
+  @spec update_user(t, String.t(), UserState.t()) :: t
+  defp update_user(game, user_id, user = %UserState{}) do
+    game
+    |> Map.update!(:users, fn users ->
+      Map.put(users, user_id, user)
+    end)
+  end
+
+  @spec update_user(t, String.t(), user_updater :: (UserState.t() -> UserState.t())) :: t
+  defp update_user(game, user_id, user_updater) do
+    game
+    |> Map.update!(:users, fn users ->
+      Map.update!(users, user_id, user_updater)
+    end)
   end
 end
