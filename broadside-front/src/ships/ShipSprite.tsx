@@ -1,38 +1,28 @@
 import "react";
 import styled from "../styled-components";
 
-import * as Position from "./position";
+import * as Position from "../game/position";
+
+import { ShipData } from "./Ship";
 
 import noSailSprite from "../img/no-sail.png";
 import oneSailSprite from "../img/one-sail.png";
 import twoSailSprite from "../img/two-sail.png";
 import threeSailSprite from "../img/three-sail.png";
 
-export interface ShipData {
-  id: string;
-  position: Position.t;
-}
-
-export interface ShipProps {
-  fps?: number;
-  maxX?: number;
-  maxY?: number;
+export interface ShipSpriteProps {
   ship: ShipData;
-  userId: string;
+  fps?: number;
+  isUser: boolean;
 }
 
-const Ship = styled("div").attrs<ShipProps>({
-  style: ({ fps, maxX, maxY, userId, ship: { id, position } }: ShipProps) => {
+const ShipSprite = styled("div").attrs<ShipSpriteProps>({
+  style: ({ isUser, fps, ship: { position } }: ShipSpriteProps) => {
     const sprite = sailSprite(position.maxVelocity, position.velocity);
     return {
       backgroundImage: `url(${sprite})`,
-      opacity: id !== userId ? 0.7 : 1,
-      transform:
-        maxX &&
-        maxY &&
-        `${Position.translate(maxX, maxY, position)} ${Position.rotate(
-          position
-        )}`,
+      opacity: isUser ? 1 : 0.7,
+      transform: `${Position.rotate(position)}`,
       transition: fps ? `${1 / fps}s linear` : "none"
     };
   }
@@ -42,7 +32,6 @@ const Ship = styled("div").attrs<ShipProps>({
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  position: absolute;
 `;
 
 const sailSprite = (maxVelocity: number | undefined, speed: number) => {
@@ -62,4 +51,4 @@ const sailSprite = (maxVelocity: number | undefined, speed: number) => {
   return threeSailSprite;
 };
 
-export default Ship;
+export default ShipSprite;

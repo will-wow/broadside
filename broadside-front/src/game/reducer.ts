@@ -4,7 +4,7 @@ import * as Score from "./score";
 import { Action } from "../actions";
 
 import { BulletData } from "./Bullet";
-import { ShipData } from "./Ship";
+import { ShipData } from "../ships/Ship";
 
 export interface t {
   gameId?: string;

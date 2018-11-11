@@ -1,7 +1,7 @@
 import * as R from "ramda";
 
 import { Store } from "../reducers";
-import { ShipData } from "./Ship";
+import { ShipData } from "../ships/Ship";
 import * as Score from "./score";
 
 export const getShips = (state: Store): ShipData[] => state.game.ships;

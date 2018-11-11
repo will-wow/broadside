@@ -1,4 +1,4 @@
-import { ShipData } from "./Ship";
+import { ShipData } from "../ships/Ship";
 
 export interface t {
   ship: ShipData;

@@ -3,7 +3,7 @@ import styled from "../styled-components";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 
-import Ship, { ShipData } from "./Ship";
+import Ship, { ShipData } from "../ships/Ship";
 import Bullet from "./Bullet";
 import { BulletData } from "./Bullet";
 import { Store } from "../reducers";

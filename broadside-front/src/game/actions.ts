@@ -3,7 +3,7 @@ import * as RedexAction from "../redex/action";
 import * as ConstantsActions from "../constants/actions";
 
 import { BulletData } from "./Bullet";
-import { ShipData } from "./Ship";
+import { ShipData } from "../ships/Ship";
 
 export enum TypeKeys {
   GAME_STATE = "game:state",
